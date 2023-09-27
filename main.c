@@ -64,8 +64,6 @@ void	free_commands(char **commands) // bu komut char ** lari kolayca freeleyip l
 	free(commands);
 }
 
-// TODO 2: x
-// builtin fonksiyonları yazılacak, ayırılacak
 // cd komutunun tek "cd" argümanında home dizini
 // todo:
 // export unset pipes redirections parser
