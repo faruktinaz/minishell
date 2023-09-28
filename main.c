@@ -64,6 +64,8 @@ void	free_commands(char **commands) // bu komut char ** lari kolayca freeleyip l
 	free(commands);
 }
 
+// TODO 2: x
+// builtin fonksiyonları yazılacak, ayırılacak
 // cd komutunun tek "cd" argümanında home dizini
 // todo:
 // export unset pipes redirections parser
@@ -186,7 +188,7 @@ void	ft_set_export(t_data *data, char *export)
 	data->env_p[i + 1] = NULL;
 }
 
-char	*ft_f_command(char *command)
+char	*ft_f_command(char *command) // 
 {
 	char *n_str;
 	int i;
@@ -214,8 +216,13 @@ int	ft_export(t_data *data, char **commands)
 	j = 0;
 	while (commands[x])
 	{
+		if (commands[x][0] >= '0' && commands[x][0] <= '9')
+		{
+			printf("export: not an identifier: %s\n", commands[x]);
+			return (-1);
+		}
 		j = 0;
-		if (find_env_dir(data->env_p, ft_f_command(commands[x])) != -1)
+		if (find_env_dir(data->env_p, ft_f_command(commands[x])) != -1) // cheak memory leaks
 			ft_strlcpy(data->env_p[find_env_dir(data->env_p, ft_f_command(commands[x]))], commands[x], ft_strlen(commands[x]) + 1);
 		else
 		{
@@ -265,9 +272,10 @@ int	search_pipes(t_data *data, char **commands)
 void	ft_exec_w_pipes(t_data *data, char **commands)
 {
 	int count_pipes;
-	char *path;
 
+	data->path = ft_join_m(data, commands);
 	count_pipes = search_pipes(data, commands);
+	
 	if (!(ft_strcmp(commands[0], "env")))
 		ft_p_env(data);
 	else if (!(ft_strcmp(commands[0], "echo")))
