@@ -188,7 +188,7 @@ void	ft_set_export(t_data *data, char *export)
 	data->env_p[i + 1] = NULL;
 }
 
-char	*ft_f_command(char *command) // 
+char	*ft_f_command(char *command)
 {
 	char *n_str;
 	int i;
@@ -269,19 +269,53 @@ int	search_pipes(t_data *data, char **commands)
 	return (counter);
 }
 
-void	ft_exec_w_pipes(t_data *data, char **commands)
+void	ft_exec_w_pipes(t_data *data, char **commands) //  when parser added to minishell then this function will changed. 0. 1. | 0. 1. or 0. 1. | 2. 3. which one comes from parser
 {
-	int count_pipes;
+	int total_pipe;
+	int total_exec;
+	int fd[2];
+	int pid;
+	int i = 0;
+	
 
 	data->path = ft_join_m(data, commands);
-	count_pipes = search_pipes(data, commands);
-	
-	if (!(ft_strcmp(commands[0], "env")))
-		ft_p_env(data);
-	else if (!(ft_strcmp(commands[0], "echo")))
-		ft_echo(commands);
-	else if (!(ft_strcmp(commands[0], "pwd")))
-		ft_pwd(commands, data);
+	total_pipe = search_pipes(data, commands);
+	total_exec = total_pipe + 1;
+	pipe(fd);
+	while (total_pipe >= 0)
+	{
+		pid = fork();
+		if (pid == 0)
+		{
+			if (ft_strcmp(commands[i], "|") == 0)
+				i++;
+			if (!(ft_strcmp(commands[i], "env")))
+				ft_p_env(data);
+			else if (!(ft_strcmp(commands[i], "echo")))
+				ft_echo(commands);
+			else if (!(ft_strcmp(commands[i], "pwd")))
+				ft_pwd(commands, data);
+		}
+		else
+			waitpid(pid, NULL, 0);
+		i++;
+		total_pipe--;
+	}
+}
+
+void	ft_unset(t_data *data, char **commands)
+{
+	int i = 0;
+	if (find_env_dir(data->env_p, ft_f_command(commands[1])) != -1)
+	{
+		i = find_env_dir(data->env_p, ft_f_command(commands[1]));
+		while (data->env_p[i + 1])
+		{
+			data->env_p[i] = data->env_p[i + 1];
+			i++;
+		}
+		data->env_p[i] = NULL;
+	}
 }
 
 int	main (int argc, char **argv, char **env)
@@ -325,6 +359,8 @@ int	main (int argc, char **argv, char **env)
 				ft_pwd(commands, data);
 			else if (!(ft_strcmp(commands[0], "export")))
 				ft_export(data, commands);
+			else if (!(ft_strcmp(commands[0], "unset")))
+				ft_unset(data, commands);
 			else if (!(ft_strcmp(commands[0], "env")))
 				ft_p_env(data);
 			else
