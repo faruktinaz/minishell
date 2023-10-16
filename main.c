@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/30 03:56:43 by ogenc             #+#    #+#             */
-/*   Updated: 2023/09/23 18:31:23 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/10/16 23:44:44 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,8 @@ char	*find_access(t_data *data, char *input) // bu fonksiyon gelen envp PATH= de
 	int		i;
 
 	x = find_env_dir(data->env_p, "PATH");
+	if (x == -1)
+		return ("error");
 	env_path = ft_split(data->env_p[x] + 5, ':');
 	i = 0;
 	while (env_path[i])
@@ -130,10 +132,16 @@ void	ft_echo(char **commands)
 
 void	ft_pwd(char **commands, t_data *data)
 {
+	char	*t_pwd;
+
+	t_pwd = malloc(sizeof(char) * 1024);
+	if (!getcwd(t_pwd, 1024))
+		perror("error");
 	if (commands[1])
 		printf("pwd: too many arguments\n");
 	else
-		printf("%s\n", data->env_p[find_env_dir(data->env_p, "PWD")] + 4);
+		printf("%s\n", t_pwd);
+	free(t_pwd);
 }
 
 char	*ft_join_m(t_data *data, char **commands)
@@ -153,26 +161,26 @@ char	*ft_join_m(t_data *data, char **commands)
 
 int	ft_change_dir(t_data *data, char *token)
 {
-	char	*test;
+	char	*t_pwd;
 	char	*new_pwd;
 	char	*old_pwd;
 
-	test = malloc(sizeof(char) * 1024);
+	t_pwd = malloc(sizeof(char) * 1024);
 	if (chdir(token) == -1)
 		return (-1);
 	else
 	{
-		if (!getcwd(test, 1024))
+		if (!getcwd(t_pwd, 1024))
 			perror("error");
 		else
 		{
-			new_pwd = ft_strjoin("PWD=", test);
+			new_pwd = ft_strjoin("PWD=", t_pwd);
 			old_pwd = ft_strjoin("OLD", data->env_p[find_env_dir(data->env_p, "PWD")]);
 			data->env_p[find_env_dir(data->env_p, "PWD")] = new_pwd;
 			data->env_p[find_env_dir(data->env_p, "OLDPWD")] = old_pwd;
 		}
 	}
-	free(test);
+	free(t_pwd);
 	return (1);
 }
 
@@ -194,12 +202,12 @@ char	*ft_f_command(char *command)
 	int i;
 
 	i = 0;
-	while (command[i] >= 'A' && command[i] <= 'Z') // kücük A kücük Z 
+	while (command[i] >= 'A' && command[i] <= 'Z' || command[i] >= 'a' && command[i] <= 'z') // kücük A kücük Z 
 		i++;
 	if (command[i] == '=')
 	{
 		n_str = malloc(sizeof(char) * i);
-		ft_strlcpy(n_str, command, i);
+		ft_strlcpy(n_str, command, i + 1);
 	}
 	else
 		return(NULL);
@@ -228,7 +236,7 @@ int	ft_export(t_data *data, char **commands)
 		{
 			while (commands[x][j])
 			{
-				if (commands[x][j] >= 'a' && commands[x][j] <= 'z')
+				if (commands[x][j] >= 'a' && commands[x][j] <= 'z' || (commands[x][j] >= 'A' && commands[x][j] <= 'Z'))
 					j++;
 				else if (commands[x][j] == '=')
 				{
@@ -306,9 +314,9 @@ void	ft_exec_w_pipes(t_data *data, char **commands) //  when parser added to min
 void	ft_unset(t_data *data, char **commands)
 {
 	int i = 0;
-	if (find_env_dir(data->env_p, ft_f_command(commands[1])) != -1)
+	if (find_env_dir(data->env_p, commands[1]) != -1)
 	{
-		i = find_env_dir(data->env_p, ft_f_command(commands[1]));
+		i = find_env_dir(data->env_p, commands[1]);
 		while (data->env_p[i + 1])
 		{
 			data->env_p[i] = data->env_p[i + 1];
