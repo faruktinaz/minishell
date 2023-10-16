@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/30 03:56:43 by ogenc             #+#    #+#             */
-/*   Updated: 2023/10/16 23:44:44 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/10/17 01:42:02 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,7 +191,7 @@ void	ft_set_export(t_data *data, char *export)
 	i = 0;
 	while (data->env_p[i])
 		i++;
-	data->env_p[i] = malloc(ft_strlen(export));
+	data->env_p[i] = malloc(sizeof(char) * ft_strlen(export));
 	ft_strlcpy(data->env_p[i], export, ft_strlen(export) + 1);
 	data->env_p[i + 1] = NULL;
 }
@@ -219,6 +219,7 @@ int	ft_export(t_data *data, char **commands)
 {
 	int x;
 	int j;
+	char *command_w_eq;
 
 	x = 1;
 	j = 0;
@@ -230,8 +231,13 @@ int	ft_export(t_data *data, char **commands)
 			return (-1);
 		}
 		j = 0;
-		if (find_env_dir(data->env_p, ft_f_command(commands[x])) != -1) // cheak memory leaks
-			ft_strlcpy(data->env_p[find_env_dir(data->env_p, ft_f_command(commands[x]))], commands[x], ft_strlen(commands[x]) + 1);
+		if (find_env_dir(data->env_p, command_w_eq) != -1)// cheak memory leaks 
+		{
+			command_w_eq = ft_f_command(commands[x]);
+			ft_strlcpy(data->env_p[find_env_dir(data->env_p, command_w_eq)], commands[x], ft_strlen(commands[x]) + 1);
+			if (command_w_eq)
+				free(command_w_eq);
+		}
 		else
 		{
 			while (commands[x][j])
@@ -313,10 +319,9 @@ void	ft_exec_w_pipes(t_data *data, char **commands) //  when parser added to min
 
 void	ft_unset(t_data *data, char **commands)
 {
-	int i = 0;
-	if (find_env_dir(data->env_p, commands[1]) != -1)
+	int i = find_env_dir(data->env_p, commands[1]);
+	if (i != -1)
 	{
-		i = find_env_dir(data->env_p, commands[1]);
 		while (data->env_p[i + 1])
 		{
 			data->env_p[i] = data->env_p[i + 1];
@@ -325,6 +330,22 @@ void	ft_unset(t_data *data, char **commands)
 		data->env_p[i] = NULL;
 	}
 }
+
+void set_env_p(t_data *data, char **env)
+{
+	int i = 0;
+	while (env[i])
+		i++;
+	data->env_p = malloc(sizeof(char *) * i);
+	i = 0;
+	while (env[i])
+	{
+		data->env_p[i] = env[i];
+		i++;
+	}
+	data->env_p[i] = NULL;
+}
+
 
 int	main (int argc, char **argv, char **env)
 {
@@ -336,7 +357,7 @@ int	main (int argc, char **argv, char **env)
 	(void)argv;
 	(void)argc;
 	data = malloc(sizeof(data));
-	data->env_p = env;
+	set_env_p(data,env);
 	while (1)
 	{
 		input = readline("\033[34mminishell \033[0;35m$ \033[0m");
