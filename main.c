@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/30 03:56:43 by ogenc             #+#    #+#             */
-/*   Updated: 2023/10/17 01:42:02 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/10/17 14:31:47 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -225,6 +225,7 @@ int	ft_export(t_data *data, char **commands)
 	j = 0;
 	while (commands[x])
 	{
+		command_w_eq = ft_f_command(commands[x]);
 		if (commands[x][0] >= '0' && commands[x][0] <= '9')
 		{
 			printf("export: not an identifier: %s\n", commands[x]);
@@ -232,12 +233,7 @@ int	ft_export(t_data *data, char **commands)
 		}
 		j = 0;
 		if (find_env_dir(data->env_p, command_w_eq) != -1)// cheak memory leaks 
-		{
-			command_w_eq = ft_f_command(commands[x]);
 			ft_strlcpy(data->env_p[find_env_dir(data->env_p, command_w_eq)], commands[x], ft_strlen(commands[x]) + 1);
-			if (command_w_eq)
-				free(command_w_eq);
-		}
 		else
 		{
 			while (commands[x][j])
@@ -253,6 +249,7 @@ int	ft_export(t_data *data, char **commands)
 					return (-1);
 			}
 		}
+		free(command_w_eq);
 		x++;
 	}
 	return (-1);
@@ -328,6 +325,7 @@ void	ft_unset(t_data *data, char **commands)
 			i++;
 		}
 		data->env_p[i] = NULL;
+		free(data->env_p[i]);
 	}
 }
 
@@ -340,6 +338,7 @@ void set_env_p(t_data *data, char **env)
 	i = 0;
 	while (env[i])
 	{
+		data->env_p[i] = malloc(sizeof(char) * ft_strlen(env[i]));
 		data->env_p[i] = env[i];
 		i++;
 	}
@@ -357,7 +356,10 @@ int	main (int argc, char **argv, char **env)
 	(void)argv;
 	(void)argc;
 	data = malloc(sizeof(data));
-	set_env_p(data,env);
+	int i = 0;
+	data->env_p = env;
+	printf("%lu\n",sizeof(env[0]));
+	// set_env_p(data,env);
 	while (1)
 	{
 		input = readline("\033[34mminishell \033[0;35m$ \033[0m");
