@@ -288,15 +288,15 @@ void	ft_exec_w_pipes(t_exec *data, char **commands) //  when parser added to min
 
 void	ft_unset(t_exec *data, char **commands)
 {
-	int i = 0;
-	if (find_env_dir(data->env_p, ft_f_command(commands[1])) != -1)
+	int i = find_env_dir(data->env_p, commands[1]);
+	if (i != -1)
 	{
-		i = find_env_dir(data->env_p, ft_f_command(commands[1]));
 		while (data->env_p[i + 1])
 		{
 			data->env_p[i] = data->env_p[i + 1];
 			i++;
 		}
+		free(data->env_p[i]);
 		data->env_p[i] = NULL;
 	}
 }
