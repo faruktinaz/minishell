@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/30 03:56:43 by ogenc             #+#    #+#             */
-/*   Updated: 2023/10/24 02:08:16 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/10/24 09:21:25 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -304,7 +304,8 @@ void	ft_unset(t_exec *data, char **commands)
 	int i = find_env_dir(data->env_p, commands[1]);
 	if (i != -1)
 	{
-		while (data->env_p[i + 1])
+		free(data->env_p[i]);
+		while (data->env_p[i + 1] != NULL)
 		{
 			data->env_p[i] = data->env_p[i + 1];
 			i++;
@@ -335,12 +336,11 @@ void	set_envp(t_exec *data, char **envp)
 	int i = 0;
 	while(envp[i])
 		i++;
-	data->env_p = malloc(sizeof(char *) * i);
+	data->env_p = malloc(sizeof(char *) * i + 1);
 	i = 0;
 	while (envp[i])
 	{
-		data->env_p[i] = malloc(sizeof(char) * ft_strlen(envp[i]));
-		ft_strlcpy(data->env_p[i], envp[i], ft_strlen(envp[i]) + 1);
+		data->env_p[i] = ft_strdup(envp[i]);
 		i++;
 	}
 	data->env_p[i] = NULL;
