@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/30 03:56:43 by ogenc             #+#    #+#             */
-/*   Updated: 2023/10/24 09:21:25 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/10/24 12:18:25 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -277,17 +277,18 @@ void	ft_exec_w_pipes(t_exec *data, char **commands)
 			if (total_pipe - 1 != -1)
 				dup2(g_data.fd[1], 1);
 			close(g_data.fd[0]);
-			close(g_data.fd[1]);
+			close(g_data.fd[1]); 
 			// if is builtin
 			execve(data->path, commands, data->env_p);
 		}
 		else
 		{
-			waitpid(pid, NULL, 0);
+			if (in != 0)
+				close(in);
+			if (total_pipe != 0)
+				in = dup(g_data.fd[0]);
 			close(g_data.fd[1]);
-			in = g_data.fd[0];
-			if (total_pipe - 1 == -1)
-				close(g_data.fd[0]);
+			close(g_data.fd[0]);
 		}
 		total_pipe--;
 		if (g_data.arg->next)
@@ -295,6 +296,12 @@ void	ft_exec_w_pipes(t_exec *data, char **commands)
 			commands = g_data.arg->next->content;
 			g_data.arg = g_data.arg->next;
 		}
+	}
+	total_pipe = total_exec - 1;
+	while (total_pipe >= 0)
+	{
+		waitpid(-1, NULL, 0);
+		total_pipe--;
 	}
 	return ;
 }
