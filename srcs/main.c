@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/30 03:56:43 by ogenc             #+#    #+#             */
-/*   Updated: 2023/10/23 20:39:41 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/10/24 02:08:16 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,23 +67,26 @@ char	*find_access(t_exec *data, char *input) // bu fonksiyon gelen envp PATH= de
 	int		i;
 
 	x = find_env_dir(data->env_p, "PATH");
-	env_path = ft_split(data->env_p[x] + 5, ':');
-	i = 0;
-	while (env_path[i])
+	if (x != -1)
 	{
-		str_a = ft_strjoin(env_path[i], input);
-		if (access(str_a, F_OK) == 0)
+		env_path = ft_split(data->env_p[x] + 5, ':');
+		i = 0;
+		while (env_path[i])
 		{
-			str = env_path[i];
-			str = ft_strjoin(str, "/");
-			free_commands(env_path);
+			str_a = ft_strjoin(env_path[i], input);
+			if (access(str_a, F_OK) == 0)
+			{
+				str = env_path[i];
+				str = ft_strjoin(str, "/");
+				free_commands(env_path);
+				free(str_a);
+				return (str);
+			}
 			free(str_a);
-			return (str);
+			i++;
 		}
-		free(str_a);
-		i++;
+		free_commands(env_path);
 	}
-	free_commands(env_path);
 	return ("error");
 }
 
@@ -118,10 +121,17 @@ void	ft_echo(char **commands)
 
 void	ft_pwd(char **commands, t_exec *data)
 {
+	char	*t_pwd;
+
+	(void)data;
+	t_pwd = malloc(sizeof(char) * 1024);
+	if (!getcwd(t_pwd, 1024))
+		perror("error");
 	if (commands[1])
 		printf("pwd: too many arguments\n");
 	else
-		printf("%s\n", data->env_p[find_env_dir(data->env_p, "PWD")] + 4);
+		printf("%s\n", t_pwd);
+	free(t_pwd);
 }
 
 char	*ft_join_m(t_exec *data, char **commands)
@@ -141,27 +151,27 @@ char	*ft_join_m(t_exec *data, char **commands)
 
 int	ft_change_dir(t_exec *data, char *token)
 {
-	char	*test;
+	char	*t_pwd;
 	char	*new_pwd;
 	char	*old_pwd;
 
-	test = malloc(sizeof(char) * 1024);
+	t_pwd = malloc(sizeof(char) * 1024);
 	if (chdir(token) == -1)
 		return (-1);
 	else
 	{
-		if (!getcwd(test, 1024))
+		if (!getcwd(t_pwd, 1024))
 			perror("error");
 		else
 		{
-			new_pwd = ft_strjoin("PWD=", test);
+			new_pwd = ft_strjoin("PWD=", t_pwd);
 			old_pwd = ft_strjoin("OLD", data->env_p[find_env_dir(data->env_p, "PWD")]);
 			data->env_p[find_env_dir(data->env_p, "PWD")] = new_pwd;
 			data->env_p[find_env_dir(data->env_p, "OLDPWD")] = old_pwd;
 		}
 	}
-	free(test);
-	return (1);
+	free(t_pwd);
+	return (0);
 }
 
 void	ft_set_export(t_exec *data, char *export)
@@ -171,7 +181,7 @@ void	ft_set_export(t_exec *data, char *export)
 	i = 0;
 	while (data->env_p[i])
 		i++;
-	data->env_p[i] = malloc(ft_strlen(export));
+	data->env_p[i] = malloc(sizeof(char) * ft_strlen(export) + 1);
 	ft_strlcpy(data->env_p[i], export, ft_strlen(export) + 1);
 	data->env_p[i + 1] = NULL;
 }
@@ -182,12 +192,12 @@ char	*ft_f_command(char *command)
 	int i;
 
 	i = 0;
-	while (command[i] >= 'A' && command[i] <= 'Z') // kücük A kücük Z 
+	while ((command[i] >= 'A' && command[i] <= 'Z') || (command[i] >= 'a' && command[i] <= 'z')) // kücük A kücük Z 
 		i++;
 	if (command[i] == '=')
 	{
-		n_str = malloc(sizeof(char) * i);
-		ft_strlcpy(n_str, command, i);
+		n_str = malloc(sizeof(char) * i + 1);
+		ft_strlcpy(n_str, command, i + 1);
 	}
 	else
 		return(NULL);
@@ -199,24 +209,26 @@ int	ft_export(t_exec *data, char **commands)
 {
 	int x;
 	int j;
+	char	*command_w_eq;
 
 	x = 1;
 	j = 0;
 	while (commands[x])
 	{
+		command_w_eq = ft_f_command(commands[x]);
 		if (commands[x][0] >= '0' && commands[x][0] <= '9')
 		{
 			printf("export: not an identifier: %s\n", commands[x]);
 			return (-1);
 		}
 		j = 0;
-		if (find_env_dir(data->env_p, ft_f_command(commands[x])) != -1) // cheak memory leaks
-			ft_strlcpy(data->env_p[find_env_dir(data->env_p, ft_f_command(commands[x]))], commands[x], ft_strlen(commands[x]) + 1);
+		if (find_env_dir(data->env_p, command_w_eq) != -1) // cheak memory leaks
+			ft_strlcpy(data->env_p[find_env_dir(data->env_p, command_w_eq)], commands[x], ft_strlen(commands[x]) + 1);
 		else
 		{
 			while (commands[x][j])
 			{
-				if (commands[x][j] >= 'a' && commands[x][j] <= 'z')
+				if ((commands[x][j] >= 'a' && commands[x][j] <= 'z') || (commands[x][j] >= 'A' && commands[x][j] <= 'Z'))
 					j++;
 				else if (commands[x][j] == '=')
 				{
@@ -227,6 +239,7 @@ int	ft_export(t_exec *data, char **commands)
 					return (-1);
 			}
 		}
+		free(command_w_eq);
 		x++;
 	}
 	return (-1);
@@ -244,7 +257,7 @@ void	ft_p_env(t_exec *data)
 	}
 }
 
-void	ft_exec_w_pipes(t_exec *data, char **commands) //  when parser added to minishell then this function will changed. 0. 1. | 0. 1. or 0. 1. | 2. 3. which one comes from parser
+void	ft_exec_w_pipes(t_exec *data, char **commands)
 {
 	int total_pipe;
 	int total_exec;
@@ -296,7 +309,6 @@ void	ft_unset(t_exec *data, char **commands)
 			data->env_p[i] = data->env_p[i + 1];
 			i++;
 		}
-		free(data->env_p[i]);
 		data->env_p[i] = NULL;
 	}
 }
@@ -318,6 +330,22 @@ void	envp_copy(char **envp)
 	g_data.envp[i] = NULL;
 }
 
+void	set_envp(t_exec *data, char **envp)
+{
+	int i = 0;
+	while(envp[i])
+		i++;
+	data->env_p = malloc(sizeof(char *) * i);
+	i = 0;
+	while (envp[i])
+	{
+		data->env_p[i] = malloc(sizeof(char) * ft_strlen(envp[i]));
+		ft_strlcpy(data->env_p[i], envp[i], ft_strlen(envp[i]) + 1);
+		i++;
+	}
+	data->env_p[i] = NULL;
+}
+
 int	main (int argc, char **argv, char **env)
 {
 	char	**commands;
@@ -328,7 +356,7 @@ int	main (int argc, char **argv, char **env)
 	(void)argc;
 	data = malloc(sizeof(data));
 	envp_copy(env);
-	data->env_p = g_data.envp;
+	set_envp(data, env);
 	while (1)
 	{
 		g_data.line = readline("\033[34mminishell \033[0;35m$ \033[0m");
@@ -347,11 +375,7 @@ int	main (int argc, char **argv, char **env)
 				exit(0);
 			}
 			else if (g_data.counter->pipe > 0)
-			{
-				g_data.tmp = dup(0);
 				ft_exec_w_pipes(data, commands);
-				dup2(0, g_data.tmp);
-			}
 			else if (ft_strcmp(commands[0], "cd") == 0) // cd komutuna özel 
 			{
 				if (commands[1])
@@ -374,7 +398,7 @@ int	main (int argc, char **argv, char **env)
 				pid = fork();
 				if (pid == 0)
 				{
-					if (execve(data->path, commands, data->env_p) == -1)
+					if (data->path && execve(data->path, commands, data->env_p) == -1)
 						perror("Invalid command");
 					exit(1);
 				}
