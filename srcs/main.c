@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/30 03:56:43 by ogenc             #+#    #+#             */
-/*   Updated: 2023/10/24 12:18:25 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/10/25 17:05:18 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -280,6 +280,8 @@ void	ft_exec_w_pipes(t_exec *data, char **commands)
 			close(g_data.fd[1]); 
 			// if is builtin
 			execve(data->path, commands, data->env_p);
+			perror("Invalid command");
+			exit(1);
 		}
 		else
 		{
@@ -405,7 +407,7 @@ int	main (int argc, char **argv, char **env)
 				pid = fork();
 				if (pid == 0)
 				{
-					if (data->path && execve(data->path, commands, data->env_p) == -1)
+					if (execve(data->path, commands, data->env_p) == -1)
 						perror("Invalid command");
 					exit(1);
 				}
@@ -417,6 +419,7 @@ int	main (int argc, char **argv, char **env)
 		}
 		free(g_data.line);
 		free(g_data.counter);
+		freelizer(&g_data.list);
 		struct_initilaize(NULL, 0);
 	}
 }
