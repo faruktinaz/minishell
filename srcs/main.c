@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/30 03:56:43 by ogenc             #+#    #+#             */
-/*   Updated: 2023/10/25 17:05:18 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/10/30 14:32:06 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,17 +46,14 @@ void	free_commands(char **commands) // bu komut char ** lari kolayca freeleyip l
 {
 	int	x;
 
-	x = -1;
-	while (commands[++x])
+	x = 0;
+	while (commands[x])
+	{
 		free(commands[x]);
+		x++;
+	}
 	free(commands);
 }
-
-// TODO 2: x
-// builtin fonksiyonları yazılacak, ayırılacak
-// cd komutunun tek "cd" argümanında home dizini
-// todo:
-// export unset pipes redirections parser
 
 char	*find_access(t_exec *data, char *input) // bu fonksiyon gelen envp PATH= den itibaren gelen inputun örnek "ls" inputunun path'te hangi bölgede oldugunu döndürür.
 {
@@ -93,16 +90,51 @@ char	*find_access(t_exec *data, char *input) // bu fonksiyon gelen envp PATH= de
 void	ft_echo(char **commands)
 {
 	int	i;
+	int j;
+	int b_check = 2;
+	int n_added = 0;
 
 	i = 1;
-	if (commands[1] && !ft_strcmp(commands[1], "-n"))
+	j = 0;
+	if (commands[1] && !ft_strncmp(commands[1], "-n", 2))
+	{
+		j = 2;
+		while(commands[1][j])
+		{
+			if (commands[1][j] != 'n')
+				b_check = 0;
+			j++;
+		}
+		b_check = 1;
+	}
+	if (commands[1] && b_check == 1)
 	{
 		i++;
 		while (commands[i])
 		{
-			printf("%s", commands[i]);
-			if (commands[i + 1])
-				printf(" ");
+			if (!ft_strncmp(commands[i], "-n", 2) && !n_added)
+			{
+				j = 2;
+				while (commands[i][j])
+				{
+					if (commands[i][j] != 'n')
+					{
+						printf("%s", commands[i]);
+						if (commands[i + 1])
+							printf(" ");
+						n_added = 1;
+						break ;
+					}
+					else
+						break ;
+				}
+			}
+			else
+			{
+				printf("%s", commands[i]);
+				if (commands[i + 1])
+					printf(" ");
+			}
 			i++;
 		}
 	}
@@ -222,7 +254,7 @@ int	ft_export(t_exec *data, char **commands)
 			return (-1);
 		}
 		j = 0;
-		if (find_env_dir(data->env_p, command_w_eq) != -1) // cheak memory leaks
+		if (find_env_dir(data->env_p, command_w_eq) != -1)
 			ft_strlcpy(data->env_p[find_env_dir(data->env_p, command_w_eq)], commands[x], ft_strlen(commands[x]) + 1);
 		else
 		{
@@ -245,6 +277,23 @@ int	ft_export(t_exec *data, char **commands)
 	return (-1);
 }
 
+void handle_signals(int signum) {
+	if (signum == SIGINT)
+	{
+		g_data.error_code = 1;
+		write(1, "\n",1);
+		rl_on_new_line();
+		rl_replace_line("", 0);
+		rl_redisplay();
+	}
+	else if (signum == SIGQUIT)
+	{
+		rl_on_new_line();
+		rl_redisplay();
+		return;
+	}
+}
+
 void	ft_p_env(t_exec *data)
 {
 	int i;
@@ -259,27 +308,33 @@ void	ft_p_env(t_exec *data)
 
 void	ft_exec_w_pipes(t_exec *data, char **commands)
 {
+	t_newlst    *tmp;
+
+	tmp = g_data.arg;
 	int total_pipe;
 	int total_exec;
 	pid_t pid;
 	int in = 0;
 	total_pipe = g_data.counter->pipe;
 	total_exec = total_pipe + 1;
+	(void)commands;
 	
 	while (total_pipe >= 0)
 	{
+        ft_exec_rdr(&g_data.arg);
+        change_output_or_input();
 		pipe(g_data.fd);
 		pid = fork();
 		if (!pid)
 		{
-			data->path = ft_join_m(data, commands);
+			data->path = ft_join_m(data, tmp->content);
 			dup2(in, 0);
 			if (total_pipe - 1 != -1)
 				dup2(g_data.fd[1], 1);
 			close(g_data.fd[0]);
 			close(g_data.fd[1]); 
 			// if is builtin
-			execve(data->path, commands, data->env_p);
+			execve(data->path, tmp->content, data->env_p);
 			perror("Invalid command");
 			exit(1);
 		}
@@ -293,11 +348,8 @@ void	ft_exec_w_pipes(t_exec *data, char **commands)
 			close(g_data.fd[0]);
 		}
 		total_pipe--;
-		if (g_data.arg->next)
-		{
-			commands = g_data.arg->next->content;
-			g_data.arg = g_data.arg->next;
-		}
+		if (tmp->next)
+			tmp = tmp->next;
 	}
 	total_pipe = total_exec - 1;
 	while (total_pipe >= 0)
@@ -345,7 +397,7 @@ void	set_envp(t_exec *data, char **envp)
 	int i = 0;
 	while(envp[i])
 		i++;
-	data->env_p = malloc(sizeof(char *) * i + 1);
+	data->env_p = malloc(sizeof(char *) * (i + 1));
 	i = 0;
 	while (envp[i])
 	{
@@ -353,6 +405,20 @@ void	set_envp(t_exec *data, char **envp)
 		i++;
 	}
 	data->env_p[i] = NULL;
+}
+
+void    change_output_or_input(void)
+{
+    if (g_data.fdout == 1)
+    {
+        dup2(g_data.out_fd, 1);
+        close(g_data.out_fd);
+    }
+    if (g_data.fdin == 1)
+    {
+        dup2(g_data.in_fd, 0);
+        close(g_data.in_fd);
+    }
 }
 
 int	main (int argc, char **argv, char **env)
@@ -366,21 +432,44 @@ int	main (int argc, char **argv, char **env)
 	data = malloc(sizeof(data));
 	envp_copy(env);
 	set_envp(data, env);
+    g_data.default_in = dup(0);
+    g_data.default_out = dup(1);
+	signal(SIGINT, &handle_signals);
+	signal(SIGQUIT, &handle_signals);
 	while (1)
 	{
-		g_data.line = readline("\033[34mminishell \033[0;35m$ \033[0m");
+		g_data.line = readline("minishell$ ");
+		if (!g_data.line)
+			exit(0);
 		if (ft_strncmp(g_data.line, "", ft_strlen(g_data.line)) != 0) // add history
 			add_history(g_data.line);
 		ft_parse();
 		if (!(ft_strncmp(g_data.line, "\0", 1) == 0) && g_data.error_flag == 0)
 		{
 			commands = g_data.arg->content;
+            ft_exec_rdr(&g_data.arg);
+			if (g_data.in_rdr == 1)
+			{
+				g_data.in_rdr = 0;
+				continue ;
+			}	
+            change_output_or_input();
 			if (ft_strcmp(commands[0], "exit") == 0) // exit
 			{
 				printf("\033[31mExiting minishell...\033[0m\n");
+				int b = 0;
+				if (commands[1])
+				{
+					b = ft_atoi(commands[1]);
+					if (b < 0)
+						b = -b;
+				}
 				free_commands(commands);
 				free(g_data.line);
+				free_commands(data->env_p);
 				free(data);
+				if (b != 0)
+					exit(b);
 				exit(0);
 			}
 			else if (g_data.counter->pipe > 0)
@@ -407,19 +496,21 @@ int	main (int argc, char **argv, char **env)
 				pid = fork();
 				if (pid == 0)
 				{
-					if (execve(data->path, commands, data->env_p) == -1)
+					if (execve(data->path, commands + g_data.exec_check, data->env_p) == -1)
+					{
+						g_data.error_code = 127;
 						perror("Invalid command");
+					}
 					exit(1);
 				}
 				else
-					waitpid(pid, NULL, 0);
+					waitpid(pid, &g_data.error_code, 0);
 				free(data->path);
 			}
-			free_commands(commands);
 		}
 		free(g_data.line);
 		free(g_data.counter);
-		freelizer(&g_data.list);
+		freelizer(&g_data.list, &g_data.arg);
 		struct_initilaize(NULL, 0);
 	}
 }
@@ -431,5 +522,11 @@ void	struct_initilaize(char **envp, int rule)
 		g_data.error_code = 0;
 	g_data.error_flag = 0;
 	g_data.quot = 0;
+	g_data.in_rdr = 0;
 	g_data.quot_type = 1000;
+    g_data.fdin = 0;
+    g_data.fdout = 0;
+    g_data.exec_check = 0;
+    dup2(g_data.default_in, 0);
+    dup2(g_data.default_out, 1);
 }

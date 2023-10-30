@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/28 15:28:25 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/10/23 23:38:21 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/10/30 00:41:04 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,7 @@ void	test(t_arg **temp)
 	tmp = *temp;
 	while (tmp != NULL)
 	{
-		printf("list: %s -> %d;\n",tmp->content , tmp->type);
+		printf("list: %s;\n",tmp->content);
 		tmp = tmp->next;
 	}
 }
@@ -120,21 +120,21 @@ void	ft_parse(void)
 {
 	t_arg	*temp;
 	t_arg	*tmp;
-
-	temp = malloc(sizeof(t_arg));
+	
+	temp = ft_calloc(sizeof(t_arg), 1);
 	temp->next = NULL;
 	split_line(temp, ft_strtrim(g_data.line, " "));
 	ms_lstadd_back(&temp, NULL);
 	tmp = temp;
 	temp = temp->next;
 	free(tmp);
-	error_check(temp);
+	//error_check(temp);
 	make_sense(&temp);
 	type_counter(&temp);
-	if (g_data.error_flag != 0)
+	if (g_data.error_flag != 0 || !temp)
 	{
 		printf("HATA\n");
-		freelizer(&temp);
+		freelizer(&temp, NULL);
 		return ;
 	}
 	struct_initilaize(NULL, 0);
@@ -142,5 +142,6 @@ void	ft_parse(void)
 	check_quot_list(temp);
 	change_list(temp); // leak var
 	g_data.list = temp;
+    //test(&g_data.list);
 	//freelizer(&temp); //leak çözüyor ama segment yediriyor.
 }

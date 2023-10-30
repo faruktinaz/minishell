@@ -1,4 +1,6 @@
 SRCS = ./srcs/main.c \
+		./srcs/heredoc.c \
+		./srcs/redirections.c \
 		./srcs/parser/parser_process.c \
 		./srcs/parser/parser_process2.c \
 		./srcs/parser/utils.c \
@@ -13,14 +15,21 @@ CFLAGS = -Wall -Wextra -Werror -lreadline -g
 RM = rm -rf
 LIBFT = ./srcs/libary/libft/libft.a
 OBJS = $(SRCS:.c=.o)
+READLINE = readline
 
-all: $(NAME)
+all: $(NAME) $(READLINE)
 
 $(NAME): $(SRCS) $(LIBFT)
-	@gcc $(CFLAGS) $(SRCS) $(LIBFT) -o $(NAME)
+	@gcc $(CFLAGS) $(SRCS) $(LIBFT) -L${PWD}/readline/lib  -I${PWD}/readline/include/ -o $(NAME)
 	@echo "************************"
 	@echo "   MINISHELL CREATED"
 	@echo "************************"
+
+$(READLINE):
+	curl -O https://ftp.gnu.org/gnu/readline/readline-8.2.tar.gz
+	tar -xvf readline-8.2.tar.gz
+	cd readline-8.2 && ./configure --prefix=${PWD}/readline
+	cd readline-8.2 && make install
 
 $(LIBFT) :
 	@make -C ./srcs/libary/libft

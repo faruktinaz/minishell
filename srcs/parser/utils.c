@@ -6,7 +6,7 @@
 /*   By: segurbuz <segurbuz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/30 01:04:15 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/10/18 11:00:29 by segurbuz         ###   ########.fr       */
+/*   Updated: 2023/10/26 00:35:12 by segurbuz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,16 +18,20 @@ void	ft_error(char *str)
 	g_data.error_flag = 0;
 }
 
-void	freelizer(t_arg **line)
+void	freelizer(t_arg **line, t_newlst **line2)
 {
-	t_arg	*tmp;
-
-	tmp = *line;
-	while ((*line) != NULL)
+	while (line && (*line) != NULL)
 	{
 		free((*line)->content);
 		free(*line);
 		(*line) = (*line)->next;
+	}
+	while (line2 &&(*line2) != NULL)
+	{
+        free_commands((*line2)->content);
+		free((*line2)->type);
+		free(*line2);
+		(*line2) = (*line2)->next;
 	}
 }
 

@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/28 15:28:25 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/10/20 01:35:29 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/10/30 14:31:07 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@
 # include <stdarg.h>
 # include <string.h>
 # include <stdbool.h>
-
+#include <sys/ioctl.h>
 enum	character {
 	WORD,
     INPUT_RDR,
@@ -53,7 +53,8 @@ typedef struct s_arg
 typedef struct s_newlst
 {
 	char			**content;
-	int				type;
+	int				*type;
+	int				count;
 	struct s_newlst	*next;
 }					t_newlst;
 
@@ -76,14 +77,23 @@ typedef struct s_data
 	int			error_code;
 	int			quot;
 	int			fd[2];
+    int         in_fd;
+    int         out_fd;
+	int			in_rdr;
+    int         fdin;
+    int         fdout;
 	int			tmp;
 	int			quot_type;
+    int         default_in;
+    int         default_out;
+    int         exec_check;
 }				t_data;
 
 t_data	g_data;
 
+
 void	ft_parse(void);
-void	freelizer(t_arg **free);
+void	freelizer(t_arg **line, t_newlst **line2);
 int		is_check(char c);
 void	struct_initilaize(char **envp, int rule);
 bool	env_check(char const *str, char c, int rule);
@@ -101,5 +111,11 @@ void	ms_lstadd_back(t_arg **lst, t_arg *new);
 t_arg	*ms_lstlast(t_arg *lst);
 char	*ms_strjoin(char *s1, char *s2);
 void	make_sense(t_arg **list);
+void	ft_exec_rdr(t_newlst **list);
+char	*ft_join_m(t_exec *data, char **commands);
+void	free_commands(char **commands);
+void	double_input_rdr(t_newlst *tmp, int i);
+int	    ft_strcmp(char *s1, char *s2);
+void    change_output_or_input(void);
 
 #endif

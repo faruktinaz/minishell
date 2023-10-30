@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   main2.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: segurbuz <segurbuz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 00:05:04 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/10/18 12:59:42 by segurbuz         ###   ########.fr       */
+/*   Updated: 2023/10/25 23:38:53 by segurbuz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ int main(int ac, char **av, char **envp)
 		g_data.line = readline("minishell-$ ");
 		add_history(g_data.line);
 		ft_parse();
+        freelizer(&g_data.list, &g_data.arg);
 		free(g_data.line);
 		free(g_data.counter);
 		struct_initilaize(NULL, 0);
