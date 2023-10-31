@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   trim_quot.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: segurbuz <segurbuz@student.42istanbul.co>  +#+  +:+       +#+        */
+/*   By: segurbuz <segurbuz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/18 06:14:21 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/09/18 06:14:22 by segurbuz         ###   ########.fr       */
+/*   Updated: 2023/10/31 12:52:10 by segurbuz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,24 +76,27 @@ char	*trim_quot(char *str)
 	return (new_str);
 }
 
-void	check_quot_list(t_arg *temp)
+void	check_quot_list(t_newlst **temp)
 {
-	t_arg	*tmp;
-	char	*s;
-	int		i;
+	t_newlst	*list;
+	char		*s;
+	int			i;
 
-	i = 0;
-	tmp = temp;
-	while (tmp != NULL)
+	list = *temp;
+	while (list != NULL)
 	{
-		if (quot_check(tmp->content))
+		i = -1;
+		while (list->content[++i] != NULL)
 		{
-			s = tmp->content;
-			tmp->content = trim_quot(tmp->content);
-			struct_initilaize(NULL, 0);
-			free(s);
+			if (quot_check(list->content[i]))
+			{
+				s = list->content[i];
+				list->content[i] = trim_quot(list->content[i]);
+				struct_initilaize(NULL, 0);
+				free(s);
+			}
 		}
-		tmp = tmp->next;
+		list = list->next;
 	}
 	g_data.quot = 0;
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_process.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: segurbuz <segurbuz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/28 15:28:25 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/10/30 12:53:36 by segurbuz         ###   ########.fr       */
+/*   Updated: 2023/10/31 21:48:50 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,14 +95,15 @@ void	split_line(t_arg *temp, char *str)
 {
 	int	i;
 	int	start;
-	int check;
+	int	check;
 	
 	start = 0;
-	i = 0;
+	i = -1;
 	check = 0;
-	while (str[++i - 1] != '\0')
+	while (++i < (int)ft_strlen(str) + 1)
 	{
-		if (is_check(str[i]) != 1 && check == 0 && (str[i] == ' ' || !ft_isprint(str[i])))
+		if (is_check(str[i]) != 1 && check == 0 && (str[i] == ' ' \
+			|| !ft_isprint(str[i])))
 		{
 			splitting_to_add_list(temp, ft_substr(str, start, i - start));
 			start = i + 1;
@@ -110,7 +111,7 @@ void	split_line(t_arg *temp, char *str)
 		}
 		else if (str[i] == '#')
 			return ;
-		else if(check == 1 && ft_isprint(str[i]))
+		else if (check == 1 && ft_isprint(str[i]))
 		{
 			start = i;
 			check = 0;
@@ -139,7 +140,7 @@ void	type_counter(t_arg	**lst)
 	g_data.counter = ft_calloc(sizeof(t_counter), 1);
 	while (list != NULL)
 	{
-		if (list->type == INPUT_RDR || list->type == OUTPUT_RDR
+		if (list->type == INPUT_RDR || list->type == OUTPUT_RDR \
 				|| list->type == DOUBLE_OUTPUT_RDR)
 			g_data.counter->rdr++;
 		else if (list->type == WORD)
@@ -164,18 +165,16 @@ void	ft_parse(void)
 	tmp = temp;
 	temp = temp->next;
 	free(tmp);
-	//error_check(temp);
 	make_sense(&temp);
 	type_counter(&temp);
-	if (g_data.error_flag != 0 || temp == NULL)
+	if (error_check(temp) == 1)
 	{
-		printf("HATA\n");
 		freelizer(&temp, NULL);
 		return ;
 	}
 	struct_initilaize(NULL, 0);
 	find_env_name(temp);
-	check_quot_list(temp);
 	change_list(temp);
+	check_quot_list(&g_data.arg);
 	g_data.list = temp;
 }

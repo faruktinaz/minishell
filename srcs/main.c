@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/30 03:56:43 by ogenc             #+#    #+#             */
-/*   Updated: 2023/10/31 19:26:55 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/10/31 22:29:33 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -490,10 +490,7 @@ int	main (int argc, char **argv, char **env)
 					if (b < 0)
 						b = -b;
 				}
-				free_commands(g_data.arg->content);
-				free(g_data.line);
-				free_commands(data->env_p);
-				free(data);
+				system("leaks minishell");
 				if (b != 0)
 					exit(b);
 				exit(0);
@@ -527,8 +524,8 @@ int	main (int argc, char **argv, char **env)
 				{
 					if (execve(data->path, g_data.arg->content, data->env_p) == -1)
 					{
+						perror("Invalid command:");
 						errno = 127;
-						printf("command not found: %s\n", g_data.arg->content[0]);   
 					}
 					exit(errno);
 				}

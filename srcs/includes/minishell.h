@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/28 15:28:25 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/10/31 13:12:43 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/10/31 21:19:57 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,7 @@ typedef struct s_data
     int         default_in;
     int         default_out;
     int         exec_check;
+	int			dollars_error;
 }				t_data;
 
 t_data	g_data;
@@ -99,15 +100,15 @@ int		is_check(char c);
 void	struct_initilaize(char **envp, int rule);
 bool	env_check(char const *str, char c, int rule);
 char	*env_find(char *path);
-void	check_quot_list(t_arg *temp);
+void	check_quot_list(t_newlst **temp);
 char	*env_add_dollars(char *str, char *path);
 int		env_control(char *str, int i);
 void	ft_error(char *str);
 void	change_list(t_arg *temp);
 void	find_env_name(t_arg *temp);
-void	parse_error(int error_code);
-int	is_oparators(char *str, int i, int oparator, int rule);
-void	*error_check(t_arg *temp);
+void	parse_error(int error_code, char *str);
+int		is_oparators(char *str, int i, int oparator, int rule);
+int		error_check(t_arg *temp);
 t_arg	*ms_lstnew(int type, void *content);
 void	ms_lstadd_back(t_arg **lst, t_arg *new);
 t_arg	*ms_lstlast(t_arg *lst);
@@ -118,7 +119,7 @@ void	ft_exec_rdr(t_newlst **list);
 char	*ft_join_m(t_exec *data, char **commands);
 void	free_commands(char **commands);
 void	double_input_rdr(t_newlst *tmp, int i);
-int	    ft_strcmp(char *s1, char *s2);
-void    change_output_or_input(void);
+int		ft_strcmp(char *s1, char *s2);
+void	change_output_or_input(void);
 
 #endif

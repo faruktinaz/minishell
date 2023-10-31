@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 18:38:56 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/10/31 13:19:17 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/10/31 21:59:29 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,6 @@ char	*env_find(char *path)
 		if (path[1] == '?')
 		{
 			errno = g_data.error_code;
-			g_data.in_rdr = 31;
 			return (ft_itoa(errno / 256));
 		}
 	}
@@ -68,19 +67,21 @@ char	*env_find(char *path)
 			break ;
 	}
 	if (g_data.envp[i] == NULL)
-		return ("\0");
+		return (ft_strdup("\0"));
 	else
-		return (g_data.envp[i] + env_size(path));
+		return (ft_strdup(g_data.envp[i] + env_size(path)));
 }
 
 char	*env_add_dollars(char *str, char *path)
 {
 	char	*str_start;
 	char	*str_end;
+	char	*tmp_path;
 	char	*new_str;
 	int		i;
 
 	i = 0;
+	tmp_path = NULL;
 	struct_initilaize(NULL, 0);
 	i = env_control(str, i);
 	str_start = ft_substr(str, 0, i);
@@ -90,16 +91,15 @@ char	*env_add_dollars(char *str, char *path)
 	{
 		if (g_data.quot_type != '\'' && str[i] == '$')
 		{
-			path = env_find(path);
+			tmp_path = env_find(path);
 			g_data.error_code = 0;
 			break ;
 		}
 	}
-	new_str = ms_strjoin(str_start, path);
+	new_str = ms_strjoin(str_start, tmp_path);
+	free(tmp_path);
 	new_str = ms_strjoin(new_str, str_end);
 	free(str);
-	if (g_data.in_rdr == 31)
-		free(path);
 	return (free(str_end), new_str);
 }
 
