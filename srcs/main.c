@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/30 03:56:43 by ogenc             #+#    #+#             */
-/*   Updated: 2023/10/31 22:29:33 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/10/31 23:19:44 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -357,7 +357,7 @@ void	ft_exec_w_pipes(t_exec *data, char **commands)
 				if (execve(data->path, tmp->content, data->env_p) == -1)
 				{
 					errno = 127;
-					printf("command not found: %s\n", tmp->content[0]);   
+					printf("command not found: %s\n", tmp->content[0]);
 				}
 			exit(errno);
 		}
@@ -444,6 +444,18 @@ void    change_output_or_input(void)
     }
 }
 
+static void	delete_hat(void)
+{
+	struct termios	termios_p;
+
+	if (tcgetattr(0, &termios_p) != 0)
+		perror("Minishell: tcgetattr");
+	termios_p.c_lflag &= ~ECHOCTL;
+	if (tcsetattr(0, 0, &termios_p) != 0)
+		perror("Minishell: tcsetattr");
+}
+
+
 int	main (int argc, char **argv, char **env)
 {
 	int		pid;
@@ -458,6 +470,7 @@ int	main (int argc, char **argv, char **env)
 	g_data.envp = data->env_p;
     g_data.default_in = dup(0);
     g_data.default_out = dup(1);
+	delete_hat();
 	signal(SIGINT, &handle_signals);
 	signal(SIGQUIT, &handle_signals);
 	while (1)
@@ -524,8 +537,8 @@ int	main (int argc, char **argv, char **env)
 				{
 					if (execve(data->path, g_data.arg->content, data->env_p) == -1)
 					{
-						perror("Invalid command:");
 						errno = 127;
+						printf("command not found: %s\n", g_data.arg->content[0]);
 					}
 					exit(errno);
 				}

@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/28 15:28:25 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/10/31 21:48:50 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/10/31 23:17:34 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,8 +110,11 @@ void	split_line(t_arg *temp, char *str)
 			check = 1;
 		}
 		else if (str[i] == '#')
+		{
+			free(str);
 			return ;
-		else if (check == 1 && ft_isprint(str[i]))
+		}
+		else if (check == 1 && ft_isprint(str[i]) && str[i] != ' ')
 		{
 			start = i;
 			check = 0;

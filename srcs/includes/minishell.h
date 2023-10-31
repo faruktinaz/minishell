@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/28 15:28:25 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/10/31 21:19:57 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/10/31 22:44:16 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@
 # include <stdarg.h>
 # include <string.h>
 # include <stdbool.h>
+# include <termios.h>
 
 enum	character {
 	WORD,
