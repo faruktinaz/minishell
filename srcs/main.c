@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/30 03:56:43 by ogenc             #+#    #+#             */
-/*   Updated: 2023/10/31 23:19:44 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/01 00:48:24 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -216,6 +216,22 @@ int	ft_change_dir(t_exec *data, char *token)
 	return (0);
 }
 
+int		check_is_dir(char *str)
+{
+	int i;
+	int res;
+
+	i = 0;
+	res = 0;
+	while (str[i])
+	{
+		if (str[i] == '/')
+			res = 1;
+		i++;
+	}
+	return (res);
+}
+
 void	ft_set_export(t_exec *data, char *export)
 {
 	int i;
@@ -338,6 +354,8 @@ void	ft_exec_w_pipes(t_exec *data, char **commands)
 		pid = fork();
 		if (!pid)
 		{
+			if (check_is_dir(tmp->content[0]) == 1)
+				g_data.err_ty = 1;
 			if (access(tmp->content[0], F_OK) != 0)
 				data->path = ft_join_m(data, tmp->content);
 			else
@@ -351,13 +369,15 @@ void	ft_exec_w_pipes(t_exec *data, char **commands)
 			{
 				ft_exec_rdr(&tmp);
 				change_output_or_input();
-			} 
-			// if is builtin
-			if (tmp->content[0] != NULL)
+			}
+			if (tmp->content[0] && is_built_in(data, tmp->content) != 1)
 				if (execve(data->path, tmp->content, data->env_p) == -1)
 				{
 					errno = 127;
-					printf("command not found: %s\n", tmp->content[0]);
+					if (g_data.err_ty == 0)
+						printf("command not found: %s\n", tmp->content[0]);
+					else if (g_data.err_ty == 1)
+						printf("No such file or directory: %s\n", tmp->content[0]);
 				}
 			exit(errno);
 		}
@@ -456,6 +476,66 @@ static void	delete_hat(void)
 }
 
 
+int		is_built_in(t_exec *data, char **content)
+{
+	int	result;
+
+	result = 0;
+	if (ft_strcmp(content[0], "exit") == 0) // exit
+	{
+		if (!(g_data.counter->pipe > 0))
+		{
+			printf("\033[31mExiting minishell...\033[0m\n");
+			int b = 0;
+			if (content[1])
+			{
+				b = ft_atoi(content[1]);
+				if (b < 0)
+					b = -b;
+			}
+			system("leaks minishell");
+			if (b != 0)
+				exit(b);
+			exit(0);
+		}
+		result = 1;
+	}
+	else if (ft_strcmp(content[0], "cd") == 0) // cd komutuna özel 
+	{
+		if (content[1])
+			if (ft_change_dir(data, content[1]) == -1)
+				printf("\033[31mcd: no such file or directory: %s\033[0m\n", content[1]);
+		result = 1;
+	}
+	else if (!(ft_strcmp(content[0], "echo")))
+	{
+		ft_echo(content);
+		result = 1;
+	}
+	else if (!(ft_strcmp(content[0], "pwd"))) // pwd
+	{
+		ft_pwd(data);
+		result = 1;
+	}
+	else if (!(ft_strcmp(content[0], "export")))
+	{
+		ft_export(data, content);
+		result = 1;
+	}
+	else if (!(ft_strcmp(content[0], "unset")))
+	{
+		result = 1;
+		ft_unset(data, content);
+	}
+	else if (!(ft_strcmp(content[0], "env")))
+	{
+		ft_p_env(data);
+		result = 1;
+	}
+	return (result);
+}
+
+
 int	main (int argc, char **argv, char **env)
 {
 	int		pid;
@@ -477,7 +557,10 @@ int	main (int argc, char **argv, char **env)
 	{
 		g_data.line = readline("\033[34mminishell \033[0;35m$ \033[0m");
 		if (!g_data.line)
+		{
+			write(1, "exit", 4);
 			exit(0);
+		}
 		if (ft_strncmp(g_data.line, "", ft_strlen(g_data.line)) != 0) // add history
 			add_history(g_data.line);
 		ft_parse();
@@ -493,41 +576,12 @@ int	main (int argc, char **argv, char **env)
 				g_data.in_rdr = 0;
 				continue ;
 			}
-			if (ft_strcmp(g_data.arg->content[0], "exit") == 0) // exit
-			{
-				printf("\033[31mExiting minishell...\033[0m\n");
-				int b = 0;
-				if (g_data.arg->content[1])
-				{
-					b = ft_atoi(g_data.arg->content[1]);
-					if (b < 0)
-						b = -b;
-				}
-				system("leaks minishell");
-				if (b != 0)
-					exit(b);
-				exit(0);
-			}
-			else if (g_data.counter->pipe > 0)
+			if (g_data.counter->pipe > 0)
 				ft_exec_w_pipes(data, g_data.arg->content);
-			else if (ft_strcmp(g_data.arg->content[0], "cd") == 0) // cd komutuna özel 
+			else if (g_data.arg->content[0] && is_built_in(data, g_data.arg->content) != 1)
 			{
-				if (g_data.arg->content[1])
-					if (ft_change_dir(data, g_data.arg->content[1]) == -1)
-						printf("\033[31mcd: no such file or directory: %s\033[0m\n", g_data.arg->content[1]);
-			}
-			else if (!(ft_strcmp(g_data.arg->content[0], "echo")))
-				ft_echo(g_data.arg->content);
-			else if (!(ft_strcmp(g_data.arg->content[0], "pwd"))) // pwd
-				ft_pwd(data);
-			else if (!(ft_strcmp(g_data.arg->content[0], "export")))
-				ft_export(data, g_data.arg->content);
-			else if (!(ft_strcmp(g_data.arg->content[0], "unset")))
-				ft_unset(data, g_data.arg->content);
-			else if (!(ft_strcmp(g_data.arg->content[0], "env")))
-				ft_p_env(data);
-			else if (g_data.arg->content[0])
-			{
+				if (check_is_dir(g_data.arg->content[0]) == 1)
+					g_data.err_ty = 1;
 				if (access(g_data.arg->content[0], F_OK) != 0)
 					data->path = ft_join_m(data, g_data.arg->content);
 				else
@@ -538,7 +592,10 @@ int	main (int argc, char **argv, char **env)
 					if (execve(data->path, g_data.arg->content, data->env_p) == -1)
 					{
 						errno = 127;
-						printf("command not found: %s\n", g_data.arg->content[0]);
+						if (g_data.err_ty == 0)
+							printf("command not found: %s\n", g_data.arg->content[0]);
+						else if (g_data.err_ty == 1)
+							printf("No such file or directory: %s\n", g_data.arg->content[0]);
 					}
 					exit(errno);
 				}
@@ -565,6 +622,7 @@ void	struct_initilaize(char **envp, int rule)
 	g_data.quot_type = 1000;
     g_data.fdin = 0;
     g_data.fdout = 0;
+	g_data.err_ty = 0;
     g_data.exec_check = 0;
     dup2(g_data.default_in, 0);
     dup2(g_data.default_out, 1);

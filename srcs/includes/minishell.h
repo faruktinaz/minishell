@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/28 15:28:25 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/10/31 22:44:16 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/01 00:16:14 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,7 @@ typedef struct s_data
     int         fdout;
 	int			tmp;
 	int			quot_type;
+	int			err_ty;
     int         default_in;
     int         default_out;
     int         exec_check;
@@ -102,6 +103,7 @@ void	struct_initilaize(char **envp, int rule);
 bool	env_check(char const *str, char c, int rule);
 char	*env_find(char *path);
 void	check_quot_list(t_newlst **temp);
+int		is_built_in(t_exec *data, char **content);
 char	*env_add_dollars(char *str, char *path);
 int		env_control(char *str, int i);
 void	ft_error(char *str);
