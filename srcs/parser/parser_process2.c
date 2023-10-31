@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_process2.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
+/*   By: segurbuz <segurbuz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/16 21:13:10 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/10/29 23:06:56 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/10/30 14:36:37 by segurbuz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,14 +42,18 @@ void	make_sense2(t_newlst **tmp)
 	list = *tmp;
 	while (list != NULL)
 	{
-		i = -1;
-		while (list->content[++i] != NULL)
+		i = 0;
+		while (list->content[i] != NULL)
 		{
 			if (*list->content[i] == '<'
 				|| *list->content[i] == '>')
-				list->type[i] = initialize_lexer2(list->content[i]);
+				{
+					list->type[i] = initialize_lexer2(list->content[i]);
+					list->list_type = OUTPUT_RDR;
+				}
 			else
 				list->type[i] = WORD;
+			i++;
 		}
 		list = list->next;
 	}
@@ -78,8 +82,8 @@ t_arg	*add_list(t_newlst **list, t_arg *tmp, int size)
 
 	i = -1;
 	arg = *list;
-	arg->content = ft_calloc(sizeof(char *), (size + 1));
-    arg->type = ft_calloc(sizeof(int), size);
+	arg->content = (char **)ft_calloc(sizeof(char *), (size + 2));
+    arg->type = (int *)ft_calloc(sizeof(int), size + 1);
 	while (++i < size)
 	{
 		arg->content[i] = ft_strdup(tmp->content);
@@ -104,8 +108,11 @@ void	change_list(t_arg *temp)
 		if (temp != NULL) 
 		{
 			temp = temp->next;
-			list->next = malloc(sizeof(t_newlst));
-			list = list->next;
+			if (temp)
+			{
+				list->next = ft_calloc(sizeof(t_newlst), 1);
+				list = list->next;
+			}
 		}
 	}
 	list->next = NULL;

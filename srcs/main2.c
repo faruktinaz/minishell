@@ -6,11 +6,32 @@
 /*   By: segurbuz <segurbuz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 00:05:04 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/10/25 23:38:53 by segurbuz         ###   ########.fr       */
+/*   Updated: 2023/10/29 23:17:28 by segurbuz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./includes/minishell.h"
+
+int	ft_strcmp(char *s1, char *s2)
+{
+	while (*s1 && *s2)
+	{
+		if (*s1 != *s2)
+			return (*s1 - *s2);
+		s1++;
+		s2++;
+	}
+	return (*s1 - *s2);
+}
+void	free_commands(char **commands) // bu komut char ** lari kolayca freeleyip leaks bırakmamak için yapıldı.
+{
+	int	x;
+
+	x = -1;
+	while (commands[++x])
+		free(commands[x]);
+	free(commands);
+}
 
 void	envp_copy(char **envp)
 {

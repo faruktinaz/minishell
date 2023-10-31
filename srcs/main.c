@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/30 03:56:43 by ogenc             #+#    #+#             */
-/*   Updated: 2023/10/30 14:32:06 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/10/31 19:26:55 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 
 int	ft_strcmp(char *s1, char *s2)
 {
+	if (!s1 || !s2)
+		return (-1);
 	while (*s1 && *s2)
 	{
 		if (*s1 != *s2)
@@ -46,12 +48,9 @@ void	free_commands(char **commands) // bu komut char ** lari kolayca freeleyip l
 {
 	int	x;
 
-	x = 0;
-	while (commands[x])
-	{
+	x = -1;
+	while (commands[++x])
 		free(commands[x]);
-		x++;
-	}
 	free(commands);
 }
 
@@ -149,9 +148,10 @@ void	ft_echo(char **commands)
 		}
 		printf("\n");
 	}
+	g_data.error_code = 0;
 }
 
-void	ft_pwd(char **commands, t_exec *data)
+void	ft_pwd(t_exec *data)
 {
 	char	*t_pwd;
 
@@ -159,11 +159,10 @@ void	ft_pwd(char **commands, t_exec *data)
 	t_pwd = malloc(sizeof(char) * 1024);
 	if (!getcwd(t_pwd, 1024))
 		perror("error");
-	if (commands[1])
-		printf("pwd: too many arguments\n");
 	else
 		printf("%s\n", t_pwd);
 	free(t_pwd);
+	g_data.error_code = 0;
 }
 
 char	*ft_join_m(t_exec *data, char **commands)
@@ -184,22 +183,33 @@ char	*ft_join_m(t_exec *data, char **commands)
 int	ft_change_dir(t_exec *data, char *token)
 {
 	char	*t_pwd;
+	int		i_pwd;
 	char	*new_pwd;
 	char	*old_pwd;
 
 	t_pwd = malloc(sizeof(char) * 1024);
 	if (chdir(token) == -1)
+	{
+		free(t_pwd);
 		return (-1);
+	}
 	else
 	{
 		if (!getcwd(t_pwd, 1024))
 			perror("error");
 		else
 		{
+			i_pwd = find_env_dir(data->env_p, "PWD");
 			new_pwd = ft_strjoin("PWD=", t_pwd);
-			old_pwd = ft_strjoin("OLD", data->env_p[find_env_dir(data->env_p, "PWD")]);
-			data->env_p[find_env_dir(data->env_p, "PWD")] = new_pwd;
-			data->env_p[find_env_dir(data->env_p, "OLDPWD")] = old_pwd;
+			if (i_pwd == -1)
+				old_pwd = ft_strjoin("OLDPWD=", " ");
+			else
+				old_pwd = ft_strjoin("OLDPWD=", data->env_p[i_pwd] + 4);
+			if (i_pwd != -1)
+				ft_strlcpy(data->env_p[i_pwd], new_pwd, ft_strlen(new_pwd) + 1);
+			ft_strlcpy(data->env_p[find_env_dir(data->env_p, "OLDPWD")], old_pwd, ft_strlen(old_pwd) + 1);
+			free(new_pwd);
+			free(old_pwd);
 		}
 	}
 	free(t_pwd);
@@ -251,6 +261,7 @@ int	ft_export(t_exec *data, char **commands)
 		if (commands[x][0] >= '0' && commands[x][0] <= '9')
 		{
 			printf("export: not an identifier: %s\n", commands[x]);
+			g_data.error_code = 256;
 			return (-1);
 		}
 		j = 0;
@@ -277,7 +288,8 @@ int	ft_export(t_exec *data, char **commands)
 	return (-1);
 }
 
-void handle_signals(int signum) {
+void handle_signals(int signum)
+{
 	if (signum == SIGINT)
 	{
 		g_data.error_code = 1;
@@ -304,6 +316,7 @@ void	ft_p_env(t_exec *data)
 		printf("%s\n",data->env_p[i]);
 		i++;
 	}
+	g_data.error_code = 0;
 }
 
 void	ft_exec_w_pipes(t_exec *data, char **commands)
@@ -318,25 +331,35 @@ void	ft_exec_w_pipes(t_exec *data, char **commands)
 	total_pipe = g_data.counter->pipe;
 	total_exec = total_pipe + 1;
 	(void)commands;
-	
-	while (total_pipe >= 0)
+
+	while (total_pipe >= 0) // echo faruk | grep a | exit builtin
 	{
-        ft_exec_rdr(&g_data.arg);
-        change_output_or_input();
 		pipe(g_data.fd);
 		pid = fork();
 		if (!pid)
 		{
-			data->path = ft_join_m(data, tmp->content);
+			if (access(tmp->content[0], F_OK) != 0)
+				data->path = ft_join_m(data, tmp->content);
+			else
+				data->path = ft_strdup(tmp->content[0]);
 			dup2(in, 0);
 			if (total_pipe - 1 != -1)
 				dup2(g_data.fd[1], 1);
 			close(g_data.fd[0]);
-			close(g_data.fd[1]); 
+			close(g_data.fd[1]);
+			if (tmp->list_type != WORD)
+			{
+				ft_exec_rdr(&tmp);
+				change_output_or_input();
+			} 
 			// if is builtin
-			execve(data->path, tmp->content, data->env_p);
-			perror("Invalid command");
-			exit(1);
+			if (tmp->content[0] != NULL)
+				if (execve(data->path, tmp->content, data->env_p) == -1)
+				{
+					errno = 127;
+					printf("command not found: %s\n", tmp->content[0]);   
+				}
+			exit(errno);
 		}
 		else
 		{
@@ -423,22 +446,23 @@ void    change_output_or_input(void)
 
 int	main (int argc, char **argv, char **env)
 {
-	char	**commands;
 	int		pid;
 	t_exec	*data;
 
 	(void)argv;
 	(void)argc;
-	data = malloc(sizeof(data));
-	envp_copy(env);
+	
+	struct_initilaize(NULL, 1);
+	data = malloc(sizeof(t_exec));
 	set_envp(data, env);
+	g_data.envp = data->env_p;
     g_data.default_in = dup(0);
     g_data.default_out = dup(1);
 	signal(SIGINT, &handle_signals);
 	signal(SIGQUIT, &handle_signals);
 	while (1)
 	{
-		g_data.line = readline("minishell$ ");
+		g_data.line = readline("\033[34mminishell \033[0;35m$ \033[0m");
 		if (!g_data.line)
 			exit(0);
 		if (ft_strncmp(g_data.line, "", ft_strlen(g_data.line)) != 0) // add history
@@ -446,25 +470,27 @@ int	main (int argc, char **argv, char **env)
 		ft_parse();
 		if (!(ft_strncmp(g_data.line, "\0", 1) == 0) && g_data.error_flag == 0)
 		{
-			commands = g_data.arg->content;
-            ft_exec_rdr(&g_data.arg);
+			if (g_data.arg->list_type != WORD && g_data.counter->pipe < 1)
+			{
+				ft_exec_rdr(&g_data.arg);
+				change_output_or_input();
+			}
 			if (g_data.in_rdr == 1)
 			{
 				g_data.in_rdr = 0;
 				continue ;
-			}	
-            change_output_or_input();
-			if (ft_strcmp(commands[0], "exit") == 0) // exit
+			}
+			if (ft_strcmp(g_data.arg->content[0], "exit") == 0) // exit
 			{
 				printf("\033[31mExiting minishell...\033[0m\n");
 				int b = 0;
-				if (commands[1])
+				if (g_data.arg->content[1])
 				{
-					b = ft_atoi(commands[1]);
+					b = ft_atoi(g_data.arg->content[1]);
 					if (b < 0)
 						b = -b;
 				}
-				free_commands(commands);
+				free_commands(g_data.arg->content);
 				free(g_data.line);
 				free_commands(data->env_p);
 				free(data);
@@ -473,35 +499,38 @@ int	main (int argc, char **argv, char **env)
 				exit(0);
 			}
 			else if (g_data.counter->pipe > 0)
-				ft_exec_w_pipes(data, commands);
-			else if (ft_strcmp(commands[0], "cd") == 0) // cd komutuna özel 
+				ft_exec_w_pipes(data, g_data.arg->content);
+			else if (ft_strcmp(g_data.arg->content[0], "cd") == 0) // cd komutuna özel 
 			{
-				if (commands[1])
-					if (ft_change_dir(data, commands[1]) == -1)
-						printf("\033[31mcd: no such file or directory: %s\033[0m\n", commands[1]);
+				if (g_data.arg->content[1])
+					if (ft_change_dir(data, g_data.arg->content[1]) == -1)
+						printf("\033[31mcd: no such file or directory: %s\033[0m\n", g_data.arg->content[1]);
 			}
-			else if (!(ft_strcmp(commands[0], "echo")))
-				ft_echo(commands);
-			else if (!(ft_strcmp(commands[0], "pwd"))) // pwd
-				ft_pwd(commands, data);
-			else if (!(ft_strcmp(commands[0], "export")))
-				ft_export(data, commands);
-			else if (!(ft_strcmp(commands[0], "unset")))
-				ft_unset(data, commands);
-			else if (!(ft_strcmp(commands[0], "env")))
+			else if (!(ft_strcmp(g_data.arg->content[0], "echo")))
+				ft_echo(g_data.arg->content);
+			else if (!(ft_strcmp(g_data.arg->content[0], "pwd"))) // pwd
+				ft_pwd(data);
+			else if (!(ft_strcmp(g_data.arg->content[0], "export")))
+				ft_export(data, g_data.arg->content);
+			else if (!(ft_strcmp(g_data.arg->content[0], "unset")))
+				ft_unset(data, g_data.arg->content);
+			else if (!(ft_strcmp(g_data.arg->content[0], "env")))
 				ft_p_env(data);
-			else
+			else if (g_data.arg->content[0])
 			{
-				data->path = ft_join_m(data, commands);
+				if (access(g_data.arg->content[0], F_OK) != 0)
+					data->path = ft_join_m(data, g_data.arg->content);
+				else
+					data->path = ft_strdup(g_data.arg->content[0]);
 				pid = fork();
 				if (pid == 0)
 				{
-					if (execve(data->path, commands + g_data.exec_check, data->env_p) == -1)
+					if (execve(data->path, g_data.arg->content, data->env_p) == -1)
 					{
-						g_data.error_code = 127;
-						perror("Invalid command");
+						errno = 127;
+						printf("command not found: %s\n", g_data.arg->content[0]);   
 					}
-					exit(1);
+					exit(errno);
 				}
 				else
 					waitpid(pid, &g_data.error_code, 0);

@@ -6,7 +6,7 @@
 /*   By: segurbuz <segurbuz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 16:45:52 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/10/17 17:31:48 by segurbuz         ###   ########.fr       */
+/*   Updated: 2023/10/30 05:49:41 by segurbuz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ t_arg	*ms_lstnew(int type, void *content)
 {
 	t_arg	*lst;
 
-	lst = malloc(sizeof(t_arg));
+	lst = ft_calloc(sizeof(t_arg), 1);
 	if (!lst)
 		return (NULL);
 	lst->content = content;
@@ -70,4 +70,17 @@ char	*ms_strjoin(char *s1, char *s2)
 	ft_strlcpy(ptr + i, s2, (ft_strlen(s2) + 1));
 	free (s1);
 	return (ptr);
+}
+
+int	ms_lstsize(t_arg *lst)
+{
+	int	i;
+
+	i = 0;
+	while (lst != NULL)
+	{
+		i++;
+		lst = lst->next;
+	}
+	return (i);
 }

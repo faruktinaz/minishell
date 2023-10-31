@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/28 15:28:25 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/10/30 14:31:07 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/10/31 13:12:43 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <stdlib.h>
 # include <signal.h>
 # include <unistd.h>
+# include <errno.h>
 # include <readline/readline.h>
 # include <readline/history.h>
 # include <fcntl.h>
@@ -26,7 +27,7 @@
 # include <stdarg.h>
 # include <string.h>
 # include <stdbool.h>
-#include <sys/ioctl.h>
+
 enum	character {
 	WORD,
     INPUT_RDR,
@@ -35,6 +36,7 @@ enum	character {
     DOUBLE_INPUT_RDR,
     PIPE,
 };
+
 typedef struct s_counter
 {
 	int	rdr;
@@ -54,7 +56,7 @@ typedef struct s_newlst
 {
 	char			**content;
 	int				*type;
-	int				count;
+	int				list_type;
 	struct s_newlst	*next;
 }					t_newlst;
 
@@ -91,7 +93,6 @@ typedef struct s_data
 
 t_data	g_data;
 
-
 void	ft_parse(void);
 void	freelizer(t_arg **line, t_newlst **line2);
 int		is_check(char c);
@@ -105,11 +106,13 @@ void	ft_error(char *str);
 void	change_list(t_arg *temp);
 void	find_env_name(t_arg *temp);
 void	parse_error(int error_code);
+int	is_oparators(char *str, int i, int oparator, int rule);
 void	*error_check(t_arg *temp);
 t_arg	*ms_lstnew(int type, void *content);
 void	ms_lstadd_back(t_arg **lst, t_arg *new);
 t_arg	*ms_lstlast(t_arg *lst);
 char	*ms_strjoin(char *s1, char *s2);
+int		ms_lstsize(t_arg *lst);
 void	make_sense(t_arg **list);
 void	ft_exec_rdr(t_newlst **list);
 char	*ft_join_m(t_exec *data, char **commands);

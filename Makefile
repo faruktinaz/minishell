@@ -17,7 +17,7 @@ LIBFT = ./srcs/libary/libft/libft.a
 OBJS = $(SRCS:.c=.o)
 READLINE = readline
 
-all: $(NAME) $(READLINE)
+all: $(READLINE) $(NAME)
 
 $(NAME): $(SRCS) $(LIBFT)
 	@gcc $(CFLAGS) $(SRCS) $(LIBFT) -L${PWD}/readline/lib  -I${PWD}/readline/include/ -o $(NAME)

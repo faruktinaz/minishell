@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   env_check.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: segurbuz <segurbuz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 18:38:56 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/10/18 12:54:33 by segurbuz         ###   ########.fr       */
+/*   Updated: 2023/10/31 13:19:17 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,11 @@ char	*env_find(char *path)
 	if (ft_strlen(path + 1) == 1)
 	{
 		if (path[1] == '?')
-			return (ft_itoa(g_data.error_code));
+		{
+			errno = g_data.error_code;
+			g_data.in_rdr = 31;
+			return (ft_itoa(errno / 256));
+		}
 	}
 	while (g_data.envp[++i])
 	{
@@ -94,6 +98,8 @@ char	*env_add_dollars(char *str, char *path)
 	new_str = ms_strjoin(str_start, path);
 	new_str = ms_strjoin(new_str, str_end);
 	free(str);
+	if (g_data.in_rdr == 31)
+		free(path);
 	return (free(str_end), new_str);
 }
 
@@ -111,7 +117,7 @@ void	find_env_name(t_arg *temp)
 			while (temp->content[++i] != '\0')
 			{
 				is_check(temp->content[i]);
-				if (g_data.quot_type != '\'' && temp->content[i - 1] == '$')
+				if (g_data.quot_type != '\'' && i > 0 && temp->content[i - 1] == '$')
 				{
 					len = 1;
 					while (len++ && env_check(NULL, temp->content[i], 1))
