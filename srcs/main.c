@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/30 03:56:43 by ogenc             #+#    #+#             */
-/*   Updated: 2023/11/01 05:03:43 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/01 05:38:10 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -322,8 +322,10 @@ void handle_signals(int signum)
 {
 	if (signum == SIGINT)
 	{
-		g_data.error_code = 1;
 		write(1, "\n",1);
+		if (g_data.in_rdr == 2)
+			exit(1);
+		g_data.error_code = 1;
 		rl_on_new_line();
 		rl_replace_line("", 0);
 		rl_redisplay();
@@ -510,7 +512,6 @@ int		is_built_in(t_exec *data, char **content)
 				if (b < 0)
 					b = -b;
 			}
-			system("leaks minishell");
 			if (b != 0)
 				exit(b);
 			exit(0);

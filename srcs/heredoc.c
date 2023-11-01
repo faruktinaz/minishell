@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/25 00:33:47 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/10/31 12:48:32 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/01 05:15:24 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ void	double_input_rdr(t_newlst *tmp, int i)
 	{
 		while (1)
 		{
+			g_data.in_rdr = 2;
 			input = readline("> ");
 			if (!input)
 			{
