@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/28 15:28:25 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/11/01 00:16:14 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/01 02:46:23 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,7 @@ typedef struct s_exec
 {
 	char	**env_p;
 	char 	*path;
+	t_list	*t_exp;
 }	t_exec;
 
 typedef struct s_data
@@ -76,6 +77,7 @@ typedef struct s_data
 	char		**envp;
 	char		*path;
 	char		**redirection;
+	char		**t_export;
 	int			error_flag;
 	int			error_code;
 	int			quot;
@@ -108,6 +110,7 @@ char	*env_add_dollars(char *str, char *path);
 int		env_control(char *str, int i);
 void	ft_error(char *str);
 void	change_list(t_arg *temp);
+int		find_env_dir(char **env_p, char *find);
 void	find_env_name(t_arg *temp);
 void	parse_error(int error_code, char *str);
 int		is_oparators(char *str, int i, int oparator, int rule);

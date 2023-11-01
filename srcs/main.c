@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/30 03:56:43 by ogenc             #+#    #+#             */
-/*   Updated: 2023/11/01 00:48:24 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/01 05:03:43 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -250,7 +250,7 @@ char	*ft_f_command(char *command)
 	int i;
 
 	i = 0;
-	while ((command[i] >= 'A' && command[i] <= 'Z') || (command[i] >= 'a' && command[i] <= 'z')) // kücük A kücük Z 
+	while ((command[i] >= 'A' && command[i] <= 'Z') || (command[i] >= 'a' && command[i] <= 'z'))
 		i++;
 	if (command[i] == '=')
 	{
@@ -263,6 +263,18 @@ char	*ft_f_command(char *command)
 	
 }
 
+void	ft_p_env_ex(t_exec *data)
+{
+	int i;
+
+	i = 0;
+	while (data->env_p[i])
+	{
+		printf("declare -x %s\n", data->env_p[i]);
+		i++;
+	}
+}
+
 int	ft_export(t_exec *data, char **commands)
 {
 	int x;
@@ -271,6 +283,8 @@ int	ft_export(t_exec *data, char **commands)
 
 	x = 1;
 	j = 0;
+	if (!commands[1])
+		ft_p_env_ex(data);
 	while (commands[x])
 	{
 		command_w_eq = ft_f_command(commands[x]);
@@ -348,7 +362,7 @@ void	ft_exec_w_pipes(t_exec *data, char **commands)
 	total_exec = total_pipe + 1;
 	(void)commands;
 
-	while (total_pipe >= 0) // echo faruk | grep a | exit builtin
+	while (total_pipe >= 0)
 	{
 		pipe(g_data.fd);
 		pid = fork();
@@ -371,6 +385,7 @@ void	ft_exec_w_pipes(t_exec *data, char **commands)
 				change_output_or_input();
 			}
 			if (tmp->content[0] && is_built_in(data, tmp->content) != 1)
+			{
 				if (execve(data->path, tmp->content, data->env_p) == -1)
 				{
 					errno = 127;
@@ -379,6 +394,7 @@ void	ft_exec_w_pipes(t_exec *data, char **commands)
 					else if (g_data.err_ty == 1)
 						printf("No such file or directory: %s\n", tmp->content[0]);
 				}
+			}
 			exit(errno);
 		}
 		else
@@ -475,12 +491,13 @@ static void	delete_hat(void)
 		perror("Minishell: tcsetattr");
 }
 
-
 int		is_built_in(t_exec *data, char **content)
 {
 	int	result;
+	char *tmp;
 
 	result = 0;
+	tmp = NULL;
 	if (ft_strcmp(content[0], "exit") == 0) // exit
 	{
 		if (!(g_data.counter->pipe > 0))
@@ -503,8 +520,24 @@ int		is_built_in(t_exec *data, char **content)
 	else if (ft_strcmp(content[0], "cd") == 0) // cd komutuna özel 
 	{
 		if (content[1])
-			if (ft_change_dir(data, content[1]) == -1)
+		{
+			if (!ft_strcmp(content[1], "~"))
+			{
+				tmp = ft_strjoin(g_data.envp[find_env_dir(g_data.envp, "HOME")] + 5, "/");
+				if (ft_change_dir(data, tmp) == -1)
+					printf("HOME not set %s\n", content[0]);
+				free(tmp);
+			}
+			else if (ft_change_dir(data, content[1]) == -1)
 				printf("\033[31mcd: no such file or directory: %s\033[0m\n", content[1]);
+		}
+		else if (!content[1])
+		{
+			tmp = ft_strjoin(g_data.envp[find_env_dir(g_data.envp, "HOME")] + 5, "/");
+			if (ft_change_dir(data, tmp) == -1)
+				printf("HOME not set %s\n", content[0]);
+			free(tmp);
+		}
 		result = 1;
 	}
 	else if (!(ft_strcmp(content[0], "echo")))
@@ -535,7 +568,6 @@ int		is_built_in(t_exec *data, char **content)
 	return (result);
 }
 
-
 int	main (int argc, char **argv, char **env)
 {
 	int		pid;
@@ -546,6 +578,7 @@ int	main (int argc, char **argv, char **env)
 	
 	struct_initilaize(NULL, 1);
 	data = malloc(sizeof(t_exec));
+	data->t_exp = malloc(sizeof(t_list));
 	set_envp(data, env);
 	g_data.envp = data->env_p;
     g_data.default_in = dup(0);
