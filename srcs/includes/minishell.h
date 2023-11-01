@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/28 15:28:25 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/11/01 02:46:23 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/01 23:41:16 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,7 @@ typedef struct s_data
     int         default_out;
     int         exec_check;
 	int			dollars_error;
+	char		*parse_str;
 }				t_data;
 
 t_data	g_data;
@@ -127,5 +128,5 @@ void	free_commands(char **commands);
 void	double_input_rdr(t_newlst *tmp, int i);
 int		ft_strcmp(char *s1, char *s2);
 void	change_output_or_input(void);
-
+void	splitting_to_add_list(t_arg *temp, char *str);
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   redirections.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: segurbuz <segurbuz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 17:10:55 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/10/30 15:59:28 by segurbuz         ###   ########.fr       */
+/*   Updated: 2023/11/02 00:01:11 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,19 @@
 
 void    output_rdr(t_newlst *list, int i)
 {
-	g_data.out_fd = open(list->content[i + 1], O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	g_data.fd[1] = open(list->content[i + 1], O_CREAT | O_WRONLY | O_TRUNC, 0644);
 	g_data.fdout = 1;
 }
 
 void    double_output_rdr(t_newlst *list, int i)
 {
-	g_data.out_fd = open(list->content[i + 1], O_CREAT | O_WRONLY | O_APPEND, 0644);
+	g_data.fd[1] = open(list->content[i + 1], O_CREAT | O_WRONLY | O_APPEND, 0644);
 	g_data.fdout = 1;
 }
 
 void    input_rdr(t_newlst *list, int i)
 {
-	g_data.in_fd = open(list->content[i + 1], O_RDONLY, 0644);
+	g_data.fd[0] = open(list->content[i + 1], O_RDONLY, 0644);
 	g_data.fdin = 1;
 }
 
@@ -98,21 +98,19 @@ void	ft_exec_rdr(t_newlst **list)
 	int			i;
 
 	tmp = *list;
-	while (tmp != NULL)
+	i = -1;
+	while (tmp->content[++i] != NULL)
 	{
-		i = -1;
-		while (tmp->content[++i] != NULL)
+		if (tmp->type[i] != WORD)
 		{
-			if (tmp->type[i] != WORD)
-			{
-				select_rdr_type(tmp, i);
-				i++;
-			}
+			select_rdr_type(tmp, i);
+			i++;
 		}
-		if (tmp->type[0] == WORD)
-			tmp->content = change_newlst(tmp, last_rdr_check(tmp, 0, 1), 0);
-		else
-			tmp->content = change_newlst(tmp, last_rdr_check(tmp, 0, 0), 1);
-		tmp = tmp->next;
 	}
+	if (tmp->type[0] == WORD)
+		tmp->content = change_newlst(tmp, last_rdr_check(tmp, 0, 1), 0);
+	else
+		tmp->content = change_newlst(tmp, last_rdr_check(tmp, 0, 0), 1);
+	printf("%s\n", tmp->content[0]);
+	printf("%s\n", tmp->content[1]);
 }

@@ -3,136 +3,42 @@
 /*                                                        :::      ::::::::   */
 /*   parser_process.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
+/*   By: segurbuz <segurbuz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/28 15:28:25 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/10/31 23:17:34 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/01 05:05:14 by segurbuz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
-
-int	is_oparators(char *str, int i, int oparator, int rule)
-{
-	int	check;
-
-	check = 0;
-	if (i > 0)
-		check = 1;
-	if (rule == 0)
-	{
-		if (str[i - check] != oparator)
-			return (1);
-	}
-	else if (rule == 1)
-	{
-		if (str[i - check] == oparator)
-			return (1);
-	}
-	return (0);
-}
-
-int	ms_isprint(char *str, int i)
-{
-	int	check;
-
-	check = 0;
-	if (i > 0)
-		check = 1;
-	if (str[i - check] >= 32 && str[i - check] <= 126)
-		return (1);
-	return (0);
-}
-
-void	splitting_to_add_list(t_arg *temp, char *str)
-{
-	int		i;
-	int		start;
-	int		counter;
-
-	i = -1;
-	start = 0;
-	counter = 1;
-	while (str[++i] != '\0')
-	{
-		if (is_check(str[i]) != 1 && str[i] == '|')
-		{
-			if (ms_isprint(str, i) && (is_oparators(str, i, '|', 0) \
-				&& is_oparators(str, i, '>', 0) && is_oparators(str, i, '<', 0)))
-				ms_lstadd_back(&temp, \
-				ms_lstnew(0, ft_substr(str, start, i - start)));
-			ms_lstadd_back(&temp, ms_lstnew(0, ft_substr(str, i, 1)));
-			start = i + 1;
-		}
-		else if (g_data.quot != 1 && (str[i] == '<' || str[i] == '>'))
-		{
-			if (str[i + 1] == '<' || str[i + 1] == '>')
-			{
-				if (str[i + 2] == '<' || str[i + 2] == '>')
-					counter = 3;
-				else
-					counter = 2;
-			}
-			if (ms_isprint(str, i) && (is_oparators(str, i, '|', 0) \
-				&& is_oparators(str, i, '>', 0) && is_oparators(str, i, '<', 0)))
-				ms_lstadd_back(&temp, \
-				ms_lstnew(0, ft_substr(str, start, i - start)));
-			ms_lstadd_back(&temp, ms_lstnew(0, ft_substr(str, i, counter)));
-			start = i + counter;
-			if (counter == 2 || counter == 3)
-				i += counter - 1;
-			counter = 1;
-		}
-	}
-	if (str[ft_strlen(str) - 1] != '|'
-		&& str[ft_strlen(str) - 1] != '>' \
-		&& str[ft_strlen(str) - 1] != '<')
-		ms_lstadd_back(&temp, ms_lstnew(0, ft_substr(str, start, i - start)));
-	free(str);
-}
 
 void	split_line(t_arg *temp, char *str)
 {
 	int	i;
 	int	start;
 	int	check;
-	
+
 	start = 0;
 	i = -1;
 	check = 0;
 	while (++i < (int)ft_strlen(str) + 1)
 	{
 		if (is_check(str[i]) != 1 && check == 0 && (str[i] == ' ' \
-			|| !ft_isprint(str[i])))
+			|| !ft_isprint(str[i]) || str[i] == '#'))
 		{
 			splitting_to_add_list(temp, ft_substr(str, start, i - start));
 			start = i + 1;
 			check = 1;
-		}
-		else if (str[i] == '#')
-		{
-			free(str);
-			return ;
 		}
 		else if (check == 1 && ft_isprint(str[i]) && str[i] != ' ')
 		{
 			start = i;
 			check = 0;
 		}
+		if (str[i] == '#')
+			break ;
 	}
 	free(str);
-}
-
-void	test(t_arg **temp)
-{
-	t_arg	*tmp;
-
-	tmp = *temp;
-	while (tmp != NULL)
-	{
-		printf("list: %s;\n",tmp->content);
-		tmp = tmp->next;
-	}
 }
 
 void	type_counter(t_arg	**lst)
@@ -156,6 +62,18 @@ void	type_counter(t_arg	**lst)
 	}
 }
 
+void	test(t_arg **temp)
+{
+	t_arg	*tmp;
+
+	tmp = *temp;
+	while (tmp != NULL)
+	{
+		printf("list: %s;\n",tmp->content);
+		tmp = tmp->next;
+	}
+}
+
 void	ft_parse(void)
 {
 	t_arg	*temp;
@@ -175,8 +93,8 @@ void	ft_parse(void)
 		freelizer(&temp, NULL);
 		return ;
 	}
-	struct_initilaize(NULL, 0);
 	find_env_name(temp);
+	struct_initilaize(NULL, 0);
 	change_list(temp);
 	check_quot_list(&g_data.arg);
 	g_data.list = temp;

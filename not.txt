@@ -1,0 +1,3 @@
+< Makefile cat | grep bonus çalışmıyor
+heredoc çalışmıyor
+cat << a | grep 31 ilk başta boşluklu açılıyor.

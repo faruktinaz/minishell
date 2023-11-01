@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/25 00:33:47 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/11/01 05:15:24 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/01 23:57:37 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,8 @@ void	double_input_rdr(t_newlst *tmp, int i)
 				close(fd[1]);
 				return ;
 			}
+			if (g_data.in_rdr == 31)
+				exit(0);
 			dup2(fd[1], 1);
 			if (ft_strcmp(input, end_name) == 0)
 			{
@@ -49,7 +51,7 @@ void	double_input_rdr(t_newlst *tmp, int i)
 		exit(0);
 	}
 	waitpid(-1, &g_data.error_code, 0);
-	g_data.in_fd = fd[0];
+	g_data.fd[0] = fd[0];
 	g_data.fdin = 1;
 	close(fd[1]);
 }

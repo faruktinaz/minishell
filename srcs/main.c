@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/30 03:56:43 by ogenc             #+#    #+#             */
-/*   Updated: 2023/11/01 05:38:10 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/01 23:57:54 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -472,13 +472,13 @@ void    change_output_or_input(void)
 {
     if (g_data.fdout == 1)
     {
-        dup2(g_data.out_fd, 1);
-        close(g_data.out_fd);
+        dup2(g_data.fd[1], 1);
+        close(g_data.fd[1]);
     }
     if (g_data.fdin == 1)
     {
-        dup2(g_data.in_fd, 0);
-        close(g_data.in_fd);
+        dup2(g_data.fd[0], 0);
+        close(g_data.fd[0]);
     }
 }
 

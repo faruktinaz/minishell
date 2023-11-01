@@ -5,117 +5,101 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: segurbuz <segurbuz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/16 21:13:10 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/10/30 14:36:37 by segurbuz         ###   ########.fr       */
+/*   Created: 2023/11/01 01:19:36 by segurbuz          #+#    #+#             */
+/*   Updated: 2023/11/01 01:34:11 by segurbuz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
 
-int	initialize_lexer2(char *commands)
+int	is_oparators(char *str, int i, int oparator, int rule)
 {
-	int	len;
+	int	check;
 
-	len = ft_strlen(commands);
-	if (len == 1)
+	check = 0;
+	if (i > 0)
+		check = 1;
+	if (rule == 0)
 	{
-		if (*commands == '<')
-			return (INPUT_RDR);
-		else if (*commands == '>')
-			return (OUTPUT_RDR);
+		if (str[i - check] != oparator)
+			return (1);
 	}
-	if (len == 2)
+	else if (rule == 1)
 	{
-		if (*commands == '<' && *(commands + 1) == '<')
-			return (DOUBLE_INPUT_RDR);
-		else if (*commands == '>' && *(commands + 1) == '>')
-			return (DOUBLE_OUTPUT_RDR);
+		if (str[i - check] == oparator)
+			return (1);
 	}
-	return (1);
+	return (0);
 }
 
-void	make_sense2(t_newlst **tmp)
+int	ms_isprint(char *str, int i)
 {
-	t_newlst	*list;
-	int			i;
+	int	check;
 
-	list = *tmp;
-	while (list != NULL)
-	{
-		i = 0;
-		while (list->content[i] != NULL)
-		{
-			if (*list->content[i] == '<'
-				|| *list->content[i] == '>')
-				{
-					list->type[i] = initialize_lexer2(list->content[i]);
-					list->list_type = OUTPUT_RDR;
-				}
-			else
-				list->type[i] = WORD;
-			i++;
-		}
-		list = list->next;
-	}
+	check = 0;
+	if (i > 0)
+		check = 1;
+	if (str[i - check] >= 32 && str[i - check] <= 126)
+		return (1);
+	return (0);
 }
 
-int array_size(t_arg *temp)
+void	redirections_parse(t_arg *temp, int *i, int *counter, int *start)
 {
-	int	i;
-
-	i = 0;
-	while (temp != NULL)
+	if (g_data.parse_str[(*i) + 1] == '<' || g_data.parse_str[(*i) + 1] == '>')
 	{
-		if (temp->content[0] == '|' \
-			|| temp->content[0] == '\0')
-			break ;
-		i++;
-		temp = temp->next;
+		if (g_data.parse_str[(*i) + 2] == '<' \
+			|| g_data.parse_str[(*i) + 2] == '>')
+			(*counter) = 3;
+		else
+			(*counter) = 2;
 	}
-	return (i);
+	if (ms_isprint(g_data.parse_str, (*i)) \
+		&& (is_oparators(g_data.parse_str, (*i), '|', 0) \
+		&& is_oparators(g_data.parse_str, (*i), '>', 0) \
+		&& is_oparators(g_data.parse_str, (*i), '<', 0)))
+		ms_lstadd_back(&temp, \
+		ms_lstnew(0, ft_substr(g_data.parse_str, (*start), (*i) - (*start))));
+	ms_lstadd_back(&temp, \
+		ms_lstnew(0, ft_substr(g_data.parse_str, (*i), (*counter))));
+	(*start) = (*i) + (*counter);
+	if ((*counter) == 2 || (*counter) == 3)
+		(*i) += (*counter) - 1;
+	(*counter) = 1;
 }
 
-t_arg	*add_list(t_newlst **list, t_arg *tmp, int size)
+void	pipe_parse(t_arg *temp, int *i, int *start)
 {
-	t_newlst	*arg;
+	if (ms_isprint(g_data.parse_str, (*i)) \
+		&& (is_oparators(g_data.parse_str, (*i), '|', 0) \
+		&& is_oparators(g_data.parse_str, (*i), '>', 0) \
+		&& is_oparators(g_data.parse_str, (*i), '<', 0)))
+		ms_lstadd_back(&temp, \
+		ms_lstnew(0, ft_substr(g_data.parse_str, (*start), (*i) - (*start))));
+	ms_lstadd_back(&temp, ms_lstnew(0, ft_substr(g_data.parse_str, (*i), 1)));
+	(*start) = (*i) + 1;
+}
+
+void	splitting_to_add_list(t_arg *temp, char *str)
+{
 	int		i;
+	int		start;
+	int		counter;
 
 	i = -1;
-	arg = *list;
-	arg->content = (char **)ft_calloc(sizeof(char *), (size + 2));
-    arg->type = (int *)ft_calloc(sizeof(int), size + 1);
-	while (++i < size)
+	start = 0;
+	counter = 1;
+	g_data.parse_str = str;
+	while (str[++i] != '\0')
 	{
-		arg->content[i] = ft_strdup(tmp->content);
-		tmp = tmp->next;
+		if (is_check(str[i]) != 1 && str[i] == '|')
+			pipe_parse(temp, &i, &start);
+		else if (g_data.quot != 1 && (str[i] == '<' || str[i] == '>'))
+			redirections_parse(temp, &i, &counter, &start);
 	}
-	arg->content[size] = NULL;
-	return (tmp);
-}
-
-void	change_list(t_arg *temp)
-{
-	t_newlst	*list;
-	t_newlst	*headlst;
-	int		size;
-
-	list = ft_calloc(sizeof(t_newlst), 1);
-	headlst = list;
-	while (temp != NULL) 
-	{
-		size = array_size(temp);
-		temp = add_list(&list, temp, size);
-		if (temp != NULL) 
-		{
-			temp = temp->next;
-			if (temp)
-			{
-				list->next = ft_calloc(sizeof(t_newlst), 1);
-				list = list->next;
-			}
-		}
-	}
-	list->next = NULL;
-	g_data.arg = headlst;
-    make_sense2(&g_data.arg);
+	if (str[ft_strlen(str) - 1] != '|'
+		&& str[ft_strlen(str) - 1] != '>' \
+		&& str[ft_strlen(str) - 1] != '<')
+		ms_lstadd_back(&temp, ms_lstnew(0, ft_substr(str, start, i - start)));
+	free(str);
 }

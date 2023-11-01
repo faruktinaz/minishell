@@ -3,73 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   env_check.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
+/*   By: segurbuz <segurbuz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 18:38:56 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/10/31 21:59:29 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/01 03:58:57 by segurbuz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
 
-bool	env_check(char const *str, char c, int rule)
+char	*env_add_dollars2(char *str_start, char *str_end, char *tmp_path)
 {
-	int	i;
+	char	*new_str;
 
-	i = -1;
-	if (rule == 1)
-	{
-		if (ft_isdigit(c) || ft_isalnum(c) || c == '_' \
-			|| c == '?')
-			return (true);
-		return (false);
-	}
-	else
-	{
-		while (str[++i] != '\0')
-			if (str[i] == '$')
-				return (true);
-		return (false);
-	}
-}
-
-int	env_size(char *str)
-{
-	int	i;
-
-	i = 0;
-	while (str[i] != '\0')
-	{
-		if (str[i] == '=')
-			break ;
-		i++;
-	}
-	return (i);
-}
-
-char	*env_find(char *path)
-{
-	int	i;
-
-	i = -1;
-	if (ft_strlen(path + 1) == 1)
-	{
-		if (path[1] == '?')
-		{
-			errno = g_data.error_code;
-			return (ft_itoa(errno / 256));
-		}
-	}
-	while (g_data.envp[++i])
-	{
-		if (ft_strncmp(g_data.envp[i], path + 1, ft_strlen(path + 1)) == 0
-			&& env_size(g_data.envp[i]) <= (int)ft_strlen(path + 1))
-			break ;
-	}
-	if (g_data.envp[i] == NULL)
-		return (ft_strdup("\0"));
-	else
-		return (ft_strdup(g_data.envp[i] + env_size(path)));
+	new_str = ms_strjoin(str_start, tmp_path);
+	free(tmp_path);
+	new_str = ms_strjoin(new_str, str_end);
+	return (free(str_end), new_str);
 }
 
 char	*env_add_dollars(char *str, char *path)
@@ -96,11 +46,33 @@ char	*env_add_dollars(char *str, char *path)
 			break ;
 		}
 	}
-	new_str = ms_strjoin(str_start, tmp_path);
-	free(tmp_path);
-	new_str = ms_strjoin(new_str, str_end);
+	new_str = env_add_dollars2(str_start, str_end, tmp_path);
 	free(str);
-	return (free(str_end), new_str);
+	return (new_str);
+}
+
+void	find_env_name2(t_arg *temp, char *path, int i, int len)
+{
+	is_check(temp->content[i]);
+	if (g_data.quot_type != '\'' && i > 0 && temp->content[i - 1] == '$')
+	{
+		len = 1;
+		while (len++ && env_check(NULL, temp->content[i], 1))
+		{
+			if (!env_check(NULL, temp->content[i], 1)
+				|| temp->content[i - 1] == '?')
+				break ;
+			i++;
+		}
+		path = ft_substr(temp->content, (i - len) + 1, len - 1);
+		if ((path[ft_strlen(path) - 1] == '?')
+			&& ft_strlen(path) >= 3)
+			path[ft_strlen(path) - 1] = '\0';
+		temp->content = env_add_dollars(temp->content, path);
+		g_data.quot = 0;
+		i = -1;
+		free(path);
+	}
 }
 
 void	find_env_name(t_arg *temp)
@@ -109,34 +81,15 @@ void	find_env_name(t_arg *temp)
 	int		len;
 	char	*path;
 
+	path = NULL;
+	len = 0;
 	while (temp != NULL)
 	{
 		if (env_check(temp->content, '\0', 0))
 		{
 			i = -1;
 			while (temp->content[++i] != '\0')
-			{
-				is_check(temp->content[i]);
-				if (g_data.quot_type != '\'' && i > 0 && temp->content[i - 1] == '$')
-				{
-					len = 1;
-					while (len++ && env_check(NULL, temp->content[i], 1))
-					{
-						if (!env_check(NULL, temp->content[i], 1)
-							|| temp->content[i - 1] == '?')
-							break ;
-						i++;
-					}
-					path = ft_substr(temp->content, (i - len) + 1, len - 1);
-					if ((path[ft_strlen(path) - 1] == '?')
-						&& ft_strlen(path) >= 3)
-						path[ft_strlen(path) - 1] = '\0';
-					temp->content = env_add_dollars(temp->content, path);
-					g_data.quot = 0;
-					i = -1;
-					free(path);
-				}
-			}
+				find_env_name2(temp, path, i, len);
 		}
 		temp = temp->next;
 	}
