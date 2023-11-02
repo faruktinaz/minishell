@@ -1,12 +1,15 @@
-SRCS = ./srcs/executor/main.c \
+SRCS = ./srcs/exec/main.c \
 		./srcs/heredoc.c \
-		./srcs/executor/built_in.c \
-		./srcs/executor/built_in_2.c \
-		./srcs/executor/utils_built_in.c \
-		./srcs/executor/utils_built_in_2.c \
-		./srcs/executor/signals.c \
-		./srcs/executor/pipes.c \
-		./srcs/executor/readline.c \
+		./srcs/exec/built_in.c \
+		./srcs/exec/built_in_2.c \
+		./srcs/exec/utils_built_in.c \
+		./srcs/exec/utils_built_in_2.c \
+		./srcs/exec/pipes_2.c \
+		./srcs/exec/built_in_ec.c \
+		./srcs/exec/utils.c \
+		./srcs/exec/signals.c \
+		./srcs/exec/pipes.c \
+		./srcs/exec/readline.c \
 		./srcs/redirections.c \
 		./srcs/parser/parser_process.c \
 		./srcs/parser/parser_process2.c \

@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/30 03:56:43 by ogenc             #+#    #+#             */
-/*   Updated: 2023/11/02 12:28:38 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/03 01:09:13 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,26 +51,6 @@ char	*ft_join_m(t_exec *data, char **commands)
 	return (str1);
 }
 
-void    change_output_or_input(void)
-{
-	if (g_data.fdout == 1)
-	{
-		dup2(g_data.out_fd, 1);
-		close(g_data.out_fd);
-	}
-}
-
-static void	delete_hat(void)
-{
-	struct termios	termios_p;
-
-	if (tcgetattr(0, &termios_p) != 0)
-		perror("Minishell: tcgetattr");
-	termios_p.c_lflag &= ~ECHOCTL;
-	if (tcsetattr(0, 0, &termios_p) != 0)
-		perror("Minishell: tcsetattr");
-}
-
 int	is_built_in(t_exec *data, char **content)
 {
 	data->res = 0;
@@ -93,14 +73,8 @@ int	is_built_in(t_exec *data, char **content)
 		ft_p_env(data);
 	return (data->res);
 }
-void	init_signals()
-{
-	delete_hat();
-	signal(SIGINT, &handle_signals);
-	signal(SIGQUIT, &handle_signals);
-}
 
-int	main (int argc, char **argv, char **env)
+int	main(int argc, char **argv, char **env)
 {
 	t_exec	*data;
 
@@ -114,21 +88,4 @@ int	main (int argc, char **argv, char **env)
 	g_data.default_in = dup(0);
 	g_data.default_out = dup(1);
 	ft_readline(data);
-}
-
-void	struct_initilaize(char **envp, int rule)
-{
-	(void)envp;
-	if (rule == 1)
-		g_data.error_code = 0;
-	g_data.error_flag = 0;
-	g_data.quot = 0;
-	g_data.in_rdr = 0;
-	g_data.quot_type = 1000;
-	g_data.fdin = 0;
-	g_data.fdout = 0;
-	g_data.err_ty = 0;
-	g_data.exec_check = 0;
-	dup2(g_data.default_in, 0);
-	dup2(g_data.default_out, 1);
 }

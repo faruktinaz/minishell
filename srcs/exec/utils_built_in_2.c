@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 08:46:21 by ogenc             #+#    #+#             */
-/*   Updated: 2023/11/02 09:02:20 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/03 01:12:57 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,13 +29,12 @@ char	*find_access(t_exec *data, char *input)
 	char	**env_path;
 	char	*str;
 	char	*str_a;
-	int		x;
 	int		i;
 
-	x = find_env_dir(data->env_p, "PATH");
-	if (x != -1)
+	g_data.x = find_env_dir(data->env_p, "PATH");
+	if (g_data.x != -1)
 	{
-		env_path = ft_split(data->env_p[x] + 5, ':');
+		env_path = ft_split(data->env_p[g_data.x] + 5, ':');
 		i = 0;
 		while (env_path[i])
 		{
@@ -44,9 +43,7 @@ char	*find_access(t_exec *data, char *input)
 			{
 				str = env_path[i];
 				str = ft_strjoin(str, "/");
-				free_commands(env_path);
-				free(str_a);
-				return (str);
+				return (free(str_a), free_commands(env_path), str);
 			}
 			free(str_a);
 			i++;

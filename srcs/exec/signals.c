@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 08:47:07 by ogenc             #+#    #+#             */
-/*   Updated: 2023/11/02 08:47:33 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/02 21:43:14 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,4 +37,22 @@ void	handle_signals(int signum)
 		rl_replace_line("", 0);
 		rl_redisplay();
 	}
+}
+
+void	init_signals(void)
+{
+	delete_hat();
+	signal(SIGINT, &handle_signals);
+	signal(SIGQUIT, &handle_signals);
+}
+
+void	delete_hat(void)
+{
+	struct termios	termios_p;
+
+	if (tcgetattr(0, &termios_p) != 0)
+		perror("Minishell: tcgetattr");
+	termios_p.c_lflag &= ~ECHOCTL;
+	if (tcsetattr(0, 0, &termios_p) != 0)
+		perror("Minishell: tcsetattr");
 }

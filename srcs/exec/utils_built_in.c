@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 08:26:44 by ogenc             #+#    #+#             */
-/*   Updated: 2023/11/02 08:45:50 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/03 00:13:42 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,8 +56,11 @@ void	ft_exc_chdir(t_exec *data, int i_pwd)
 	if (i_pwd != -1)
 		ft_strlcpy(data->env_p[i_pwd], data->new_pwd, \
 				ft_strlen(data->new_pwd) + 1);
-	ft_strlcpy(data->env_p[find_env_dir(data->env_p, "OLDPWD")], \
+	if (find_env_dir(data->env_p, "OLDPWD") != -1)
+	{
+		ft_strlcpy(data->env_p[find_env_dir(data->env_p, "OLDPWD")], \
 				data->old_pwd, ft_strlen(data->old_pwd) + 1);
+	}
 }
 
 int	find_env_dir(char **env_p, char *find)
@@ -65,9 +68,9 @@ int	find_env_dir(char **env_p, char *find)
 	int	j;
 
 	j = 0;
-	if (find)
+	if (find != NULL)
 	{
-		while (env_p[j])
+		while (env_p[j] != NULL)
 		{
 			if (ft_strncmp(env_p[j], find, ft_strlen(find)) == 0)
 				return (j);
