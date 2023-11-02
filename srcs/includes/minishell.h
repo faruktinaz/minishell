@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/28 15:28:25 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/11/02 07:09:56 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/02 09:12:36 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,11 @@ typedef struct s_exec
 {
 	char	**env_p;
 	char	*path;
+	char	*new_pwd;
+	char	*old_pwd;
+	int		res;
 	t_list	*t_exp;
+	
 }	t_exec;
 
 typedef struct s_data
@@ -131,7 +135,7 @@ void	double_input_rdr(t_newlst *tmp, int i);
 int		ft_strcmp(char *s1, char *s2);
 void	change_output_or_input(void);
 void	splitting_to_add_list(t_arg *temp, char *str);
-
+void	ft_exec_w_pipes(t_exec *data, char **commands);
 
 // exec part
 
@@ -144,5 +148,18 @@ void	ft_p_env_ex(t_exec *data);
 void	ft_p_env(t_exec *data);
 int		ft_export(t_exec *data, char **commands);
 int		ft_change_dir(t_exec *data, char *token);
+void	ft_exit(t_exec *data, char **content);
+void	ft_set_export(t_exec *data, char *export);
+int		ft_change_dir(t_exec *data, char *token);
+int		find_env_dir(char **env_p, char *find);
+void	ft_exc_chdir(t_exec *data, int i_pwd);
+int		check_is_dir(char *str);
+void	ft_p_env_ex(t_exec *data);
+void	handle_signals(int signum);
+int		ft_export(t_exec *data, char **commands);
+char	*find_access(t_exec *data, char *input);
+void	set_envp(t_exec *data, char **envp);
+char	*ft_f_command(char *command);
+void	ft_readline(t_exec *data);
 
 #endif

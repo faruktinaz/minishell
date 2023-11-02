@@ -1,5 +1,12 @@
 SRCS = ./srcs/executor/main.c \
 		./srcs/heredoc.c \
+		./srcs/executor/built_in.c \
+		./srcs/executor/built_in_2.c \
+		./srcs/executor/utils_built_in.c \
+		./srcs/executor/utils_built_in_2.c \
+		./srcs/executor/signals.c \
+		./srcs/executor/pipes.c \
+		./srcs/executor/readline.c \
 		./srcs/redirections.c \
 		./srcs/parser/parser_process.c \
 		./srcs/parser/parser_process2.c \
@@ -13,7 +20,7 @@ SRCS = ./srcs/executor/main.c \
 		./srcs/lexer/make_sense.c
 NAME = minishell
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -lreadline -g
+CFLAGS = -Wall -Wextra -Werror -lreadline
 RM = rm -rf
 LIBFT = ./srcs/libary/libft/libft.a
 OBJS = $(SRCS:.c=.o)
