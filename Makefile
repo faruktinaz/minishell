@@ -20,7 +20,7 @@ SRCS = ./srcs/executor/main.c \
 		./srcs/lexer/make_sense.c
 NAME = minishell
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -lreadline
+CFLAGS = -Wall -Wextra -Werror -lreadline -g
 RM = rm -rf
 LIBFT = ./srcs/libary/libft/libft.a
 OBJS = $(SRCS:.c=.o)

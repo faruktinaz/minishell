@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 08:53:09 by ogenc             #+#    #+#             */
-/*   Updated: 2023/11/02 08:53:10 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/02 12:42:23 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ void	ft_exec_w_pipes(t_exec *data, char **commands)
 	(void)commands;
 	while (total_pipe >= 0)
 	{
+		if (tmp->list_type != WORD)
+			ft_exec_rdr(&tmp);
 		pipe(g_data.fd);
 		pid = fork();
 		if (!pid)
@@ -37,16 +39,13 @@ void	ft_exec_w_pipes(t_exec *data, char **commands)
 				data->path = ft_join_m(data, tmp->content);
 			else
 				data->path = ft_strdup(tmp->content[0]);
+			if (g_data.fdout == 1)
+				g_data.fd[1] = g_data.out_fd;
 			dup2(in, 0);
-			if (total_pipe - 1 != -1)
+			if (total_pipe - 1 != -1 || g_data.fdout == 1)
 				dup2(g_data.fd[1], 1);
 			close(g_data.fd[0]);
 			close(g_data.fd[1]);
-			if (tmp->list_type != WORD)
-			{
-				ft_exec_rdr(&tmp);
-				change_output_or_input();
-			}
 			if (tmp->content[0] && is_built_in(data, tmp->content) != 1)
 			{
 				if (execve(data->path, tmp->content, data->env_p) == -1)

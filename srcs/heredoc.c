@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/25 00:33:47 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/11/02 07:27:27 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/02 12:24:04 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ void	double_input_rdr(t_newlst *tmp, int i)
 	char	*input;
 	char	*end_name;
 	int		fd;
-
+	
 	end_name = tmp->content[i + 1];
 	fd = open("heredoc.txt", O_CREAT | O_RDWR | O_TRUNC, 0644);
 	while (1)
@@ -48,5 +48,5 @@ void	double_input_rdr(t_newlst *tmp, int i)
 	{
 		fd = open("heredoc.txt", O_RDWR | O_TRUNC, 0644);
 		close(fd);
-	}
+	}		
 }

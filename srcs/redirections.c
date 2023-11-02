@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   redirections.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: segurbuz <segurbuz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 17:10:55 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/11/02 04:20:11 by segurbuz         ###   ########.fr       */
+/*   Updated: 2023/11/02 12:41:36 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,7 @@ char	**change_newlst(t_newlst *tmp, int count, int check)
 			new_str[i] = ft_strdup(g_data.input_name);
 		new_str[count + 1 + g_data.fdin] = NULL;
 	}
+	g_data.fdin = 0;
 	return (free_commands(tmp->content), new_str);
 }
 
