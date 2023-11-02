@@ -6,11 +6,11 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/30 03:56:43 by ogenc             #+#    #+#             */
-/*   Updated: 2023/11/01 23:57:54 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/02 07:40:29 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "./includes/minishell.h"
+#include "../includes/minishell.h"
 
 int	ft_strcmp(char *s1, char *s2)
 {
@@ -26,7 +26,7 @@ int	ft_strcmp(char *s1, char *s2)
 	return (*s1 - *s2);
 }
 
-int	find_env_dir(char **env_p, char *find) // bu fonksiyon env nin içerisinde satır satır arama işlemi
+int	find_env_dir(char **env_p, char *find)
 {
 	int	j;
 
@@ -44,7 +44,7 @@ int	find_env_dir(char **env_p, char *find) // bu fonksiyon env nin içerisinde s
 	return (-1);
 }
 
-void	free_commands(char **commands) // bu komut char ** lari kolayca freeleyip leaks bırakmamak için yapıldı.
+void	free_commands(char **commands)
 {
 	int	x;
 
@@ -54,7 +54,7 @@ void	free_commands(char **commands) // bu komut char ** lari kolayca freeleyip l
 	free(commands);
 }
 
-char	*find_access(t_exec *data, char *input) // bu fonksiyon gelen envp PATH= den itibaren gelen inputun örnek "ls" inputunun path'te hangi bölgede oldugunu döndürür.
+char	*find_access(t_exec *data, char *input)
 {
 	char	**env_path;
 	char	*str;
@@ -89,16 +89,16 @@ char	*find_access(t_exec *data, char *input) // bu fonksiyon gelen envp PATH= de
 void	ft_echo(char **commands)
 {
 	int	i;
-	int j;
-	int b_check = 2;
-	int n_added = 0;
+	int	j;
+	int	b_check = 2;
+	int	n_added = 0;
 
 	i = 1;
 	j = 0;
 	if (commands[1] && !ft_strncmp(commands[1], "-n", 2))
 	{
 		j = 2;
-		while(commands[1][j])
+		while (commands[1][j])
 		{
 			if (commands[1][j] != 'n')
 				b_check = 0;
@@ -207,7 +207,8 @@ int	ft_change_dir(t_exec *data, char *token)
 				old_pwd = ft_strjoin("OLDPWD=", data->env_p[i_pwd] + 4);
 			if (i_pwd != -1)
 				ft_strlcpy(data->env_p[i_pwd], new_pwd, ft_strlen(new_pwd) + 1);
-			ft_strlcpy(data->env_p[find_env_dir(data->env_p, "OLDPWD")], old_pwd, ft_strlen(old_pwd) + 1);
+			ft_strlcpy(data->env_p[find_env_dir(data->env_p, "OLDPWD")], \
+							old_pwd, ft_strlen(old_pwd) + 1);
 			free(new_pwd);
 			free(old_pwd);
 		}
@@ -218,8 +219,8 @@ int	ft_change_dir(t_exec *data, char *token)
 
 int		check_is_dir(char *str)
 {
-	int i;
-	int res;
+	int	i;
+	int	res;
 
 	i = 0;
 	res = 0;
@@ -234,38 +235,37 @@ int		check_is_dir(char *str)
 
 void	ft_set_export(t_exec *data, char *export)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (data->env_p[i])
 		i++;
 	data->env_p[i] = malloc(sizeof(char) * ft_strlen(export) + 1);
 	ft_strlcpy(data->env_p[i], export, ft_strlen(export) + 1);
-	data->env_p[i + 1] = NULL;
 }
 
 char	*ft_f_command(char *command)
 {
-	char *n_str;
-	int i;
+	char	*n_str;
+	int		i;
 
 	i = 0;
-	while ((command[i] >= 'A' && command[i] <= 'Z') || (command[i] >= 'a' && command[i] <= 'z'))
+	while ((command[i] >= 'A' && command[i] <= 'Z') \
+			|| (command[i] >= 'a' && command[i] <= 'z'))
 		i++;
-	if (command[i] == '=')
+	if (command[i] == '=' && command[0] != '=')
 	{
 		n_str = malloc(sizeof(char) * i + 1);
 		ft_strlcpy(n_str, command, i + 1);
 	}
 	else
-		return(NULL);
+		return (NULL);
 	return (n_str);
-	
 }
 
 void	ft_p_env_ex(t_exec *data)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (data->env_p[i])
@@ -277,8 +277,8 @@ void	ft_p_env_ex(t_exec *data)
 
 int	ft_export(t_exec *data, char **commands)
 {
-	int x;
-	int j;
+	int		x;
+	int		j;
 	char	*command_w_eq;
 
 	x = 1;
@@ -295,57 +295,68 @@ int	ft_export(t_exec *data, char **commands)
 			return (-1);
 		}
 		j = 0;
-		if (find_env_dir(data->env_p, command_w_eq) != -1)
-			ft_strlcpy(data->env_p[find_env_dir(data->env_p, command_w_eq)], commands[x], ft_strlen(commands[x]) + 1);
+		if (command_w_eq && find_env_dir(data->env_p, command_w_eq) != -1)
+			ft_strlcpy(data->env_p[find_env_dir(data->env_p, command_w_eq)], \
+					commands[x], ft_strlen(commands[x]) + 1);
 		else
 		{
 			while (commands[x][j])
 			{
-				if ((commands[x][j] >= 'a' && commands[x][j] <= 'z') || (commands[x][j] >= 'A' && commands[x][j] <= 'Z'))
+				if ((commands[x][j] >= 'a' && commands[x][j] <= 'z') \
+						|| (commands[x][j] >= 'A' && commands[x][j] <= 'Z'))
 					j++;
-				else if (commands[x][j] == '=')
+				else if (commands[x][j] == '=' && commands[x][0] != '=')
 				{
 					ft_set_export(data, commands[x]);
-					break;
+					break ;
 				}
 				else
+				{
+					printf("not a valid identifier %s\n", commands[1]);
 					return (-1);
+				}
 			}
 		}
 		free(command_w_eq);
 		x++;
 	}
-	return (-1);
+	return (0);
 }
 
-void handle_signals(int signum)
+void	handle_signals(int signum)
 {
 	if (signum == SIGINT)
 	{
-		write(1, "\n",1);
 		if (g_data.in_rdr == 2)
-			exit(1);
-		g_data.error_code = 1;
-		rl_on_new_line();
-		rl_replace_line("", 0);
-		rl_redisplay();
+		{
+			g_data.in_rdr = 5;
+			ioctl(0, TIOCSTI, "\n");
+		}
+		else
+		{
+			printf("\n");
+			rl_on_new_line();
+			rl_replace_line("", 0);
+			rl_redisplay();
+		}
 	}
 	else if (signum == SIGQUIT)
 	{
+		printf("\n");
 		rl_on_new_line();
+		rl_replace_line("", 0);
 		rl_redisplay();
-		return;
 	}
 }
 
 void	ft_p_env(t_exec *data)
 {
-	int i;
+	int	i;
 
 	i = 0;
-	while(data->env_p[i])
+	while (data->env_p[i])
 	{
-		printf("%s\n",data->env_p[i]);
+		printf("%s\n", data->env_p[i]);
 		i++;
 	}
 	g_data.error_code = 0;
@@ -353,17 +364,17 @@ void	ft_p_env(t_exec *data)
 
 void	ft_exec_w_pipes(t_exec *data, char **commands)
 {
-	t_newlst    *tmp;
+	t_newlst	*tmp;
+	int			total_pipe;
+	int			total_exec;
+	int			in;
+	pid_t		pid;
 
 	tmp = g_data.arg;
-	int total_pipe;
-	int total_exec;
-	pid_t pid;
-	int in = 0;
 	total_pipe = g_data.counter->pipe;
 	total_exec = total_pipe + 1;
+	in = 0;
 	(void)commands;
-
 	while (total_pipe >= 0)
 	{
 		pipe(g_data.fd);
@@ -394,7 +405,8 @@ void	ft_exec_w_pipes(t_exec *data, char **commands)
 					if (g_data.err_ty == 0)
 						printf("command not found: %s\n", tmp->content[0]);
 					else if (g_data.err_ty == 1)
-						printf("No such file or directory: %s\n", tmp->content[0]);
+						printf("No such file or directory: %s\n", \
+							tmp->content[0]);
 				}
 			}
 			exit(errno);
@@ -423,7 +435,9 @@ void	ft_exec_w_pipes(t_exec *data, char **commands)
 
 void	ft_unset(t_exec *data, char **commands)
 {
-	int i = find_env_dir(data->env_p, commands[1]);
+	int	i;
+
+	i = find_env_dir(data->env_p, commands[1]);
 	if (i != -1)
 	{
 		free(data->env_p[i]);
@@ -455,10 +469,12 @@ void	envp_copy(char **envp)
 
 void	set_envp(t_exec *data, char **envp)
 {
-	int i = 0;
+	int	i;
+
+	i = 0;
 	while(envp[i])
 		i++;
-	data->env_p = malloc(sizeof(char *) * (i + 1));
+	data->env_p = calloc(1024, sizeof(char *));
 	i = 0;
 	while (envp[i])
 	{
@@ -470,16 +486,11 @@ void	set_envp(t_exec *data, char **envp)
 
 void    change_output_or_input(void)
 {
-    if (g_data.fdout == 1)
-    {
-        dup2(g_data.fd[1], 1);
-        close(g_data.fd[1]);
-    }
-    if (g_data.fdin == 1)
-    {
-        dup2(g_data.fd[0], 0);
-        close(g_data.fd[0]);
-    }
+	if (g_data.fdout == 1)
+	{
+		dup2(g_data.out_fd, 1);
+		close(g_data.out_fd);
+	}
 }
 
 static void	delete_hat(void)
@@ -493,19 +504,20 @@ static void	delete_hat(void)
 		perror("Minishell: tcsetattr");
 }
 
-int		is_built_in(t_exec *data, char **content)
+int	is_built_in(t_exec *data, char **content)
 {
-	int	result;
-	char *tmp;
+	int		result;
+	char	*tmp;
+	int		b;
 
 	result = 0;
+	b = 0;
 	tmp = NULL;
-	if (ft_strcmp(content[0], "exit") == 0) // exit
+	if (ft_strcmp(content[0], "exit") == 0)
 	{
 		if (!(g_data.counter->pipe > 0))
 		{
 			printf("\033[31mExiting minishell...\033[0m\n");
-			int b = 0;
 			if (content[1])
 			{
 				b = ft_atoi(content[1]);
@@ -518,26 +530,27 @@ int		is_built_in(t_exec *data, char **content)
 		}
 		result = 1;
 	}
-	else if (ft_strcmp(content[0], "cd") == 0) // cd komutuna özel 
+	else if (ft_strcmp(content[0], "cd") == 0)
 	{
 		if (content[1])
 		{
 			if (!ft_strcmp(content[1], "~"))
+				ft_change_dir(data, getenv("HOME"));
+			else if (ft_change_dir(data, content[1]) == -1)
+				printf("\033[31mcd: no such file or directory: %s\033[0m\n", \
+						content[1]);
+		}
+		else if (!content[1])
+		{
+			if (find_env_dir(g_data.envp, "HOME") != -1)
 			{
 				tmp = ft_strjoin(g_data.envp[find_env_dir(g_data.envp, "HOME")] + 5, "/");
 				if (ft_change_dir(data, tmp) == -1)
 					printf("HOME not set %s\n", content[0]);
 				free(tmp);
 			}
-			else if (ft_change_dir(data, content[1]) == -1)
-				printf("\033[31mcd: no such file or directory: %s\033[0m\n", content[1]);
-		}
-		else if (!content[1])
-		{
-			tmp = ft_strjoin(g_data.envp[find_env_dir(g_data.envp, "HOME")] + 5, "/");
-			if (ft_change_dir(data, tmp) == -1)
+			else
 				printf("HOME not set %s\n", content[0]);
-			free(tmp);
 		}
 		result = 1;
 	}
@@ -546,7 +559,7 @@ int		is_built_in(t_exec *data, char **content)
 		ft_echo(content);
 		result = 1;
 	}
-	else if (!(ft_strcmp(content[0], "pwd"))) // pwd
+	else if (!(ft_strcmp(content[0], "pwd")))
 	{
 		ft_pwd(data);
 		result = 1;
@@ -576,17 +589,17 @@ int	main (int argc, char **argv, char **env)
 
 	(void)argv;
 	(void)argc;
-	
 	struct_initilaize(NULL, 1);
 	data = malloc(sizeof(t_exec));
 	data->t_exp = malloc(sizeof(t_list));
 	set_envp(data, env);
 	g_data.envp = data->env_p;
-    g_data.default_in = dup(0);
-    g_data.default_out = dup(1);
+	g_data.default_in = dup(0);
+	g_data.default_out = dup(1);
 	delete_hat();
 	signal(SIGINT, &handle_signals);
 	signal(SIGQUIT, &handle_signals);
+	signal(EOF, &handle_signals);
 	while (1)
 	{
 		g_data.line = readline("\033[34mminishell \033[0;35m$ \033[0m");
@@ -595,7 +608,7 @@ int	main (int argc, char **argv, char **env)
 			write(1, "exit", 4);
 			exit(0);
 		}
-		if (ft_strncmp(g_data.line, "", ft_strlen(g_data.line)) != 0) // add history
+		if (ft_strncmp(g_data.line, "", ft_strlen(g_data.line)) != 0)
 			add_history(g_data.line);
 		ft_parse();
 		if (!(ft_strncmp(g_data.line, "\0", 1) == 0) && g_data.error_flag == 0)
@@ -616,7 +629,7 @@ int	main (int argc, char **argv, char **env)
 			{
 				if (check_is_dir(g_data.arg->content[0]) == 1)
 					g_data.err_ty = 1;
-				if (access(g_data.arg->content[0], F_OK) != 0)
+				if (access(g_data.arg->content[0], F_OK))
 					data->path = ft_join_m(data, g_data.arg->content);
 				else
 					data->path = ft_strdup(g_data.arg->content[0]);
@@ -654,10 +667,10 @@ void	struct_initilaize(char **envp, int rule)
 	g_data.quot = 0;
 	g_data.in_rdr = 0;
 	g_data.quot_type = 1000;
-    g_data.fdin = 0;
-    g_data.fdout = 0;
+	g_data.fdin = 0;
+	g_data.fdout = 0;
 	g_data.err_ty = 0;
-    g_data.exec_check = 0;
-    dup2(g_data.default_in, 0);
-    dup2(g_data.default_out, 1);
+	g_data.exec_check = 0;
+	dup2(g_data.default_in, 0);
+	dup2(g_data.default_out, 1);
 }

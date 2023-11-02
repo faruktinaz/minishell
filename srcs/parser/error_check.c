@@ -6,7 +6,7 @@
 /*   By: segurbuz <segurbuz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:50:02 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/10/31 19:12:08 by segurbuz         ###   ########.fr       */
+/*   Updated: 2023/11/02 03:38:35 by segurbuz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,8 @@ int	rdr_check(t_arg *temp)
 	else if (temp->next == NULL)
 		return (parse_error(258 \
 			, "syntax error near unexpected token 'newline'"), 1);
+	if (ft_strcmp(temp->next->content, "|") == 0)
+		return (parse_error(258, "syntax error near unexpected token '|'"), 1);	
 	return (0);
 }
 

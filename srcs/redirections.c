@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   redirections.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
+/*   By: segurbuz <segurbuz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 17:10:55 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/11/02 00:01:11 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/02 04:20:11 by segurbuz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,19 @@
 
 void    output_rdr(t_newlst *list, int i)
 {
-	g_data.fd[1] = open(list->content[i + 1], O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	g_data.out_fd = open(list->content[i + 1], O_CREAT | O_WRONLY | O_TRUNC, 0644);
 	g_data.fdout = 1;
 }
 
 void    double_output_rdr(t_newlst *list, int i)
 {
-	g_data.fd[1] = open(list->content[i + 1], O_CREAT | O_WRONLY | O_APPEND, 0644);
+	g_data.out_fd = open(list->content[i + 1], O_CREAT | O_WRONLY | O_APPEND, 0644);
 	g_data.fdout = 1;
 }
 
 void    input_rdr(t_newlst *list, int i)
 {
-	g_data.fd[0] = open(list->content[i + 1], O_RDONLY, 0644);
+	g_data.input_name = list->content[i + 1];
 	g_data.fdin = 1;
 }
 
@@ -65,17 +65,21 @@ char	**change_newlst(t_newlst *tmp, int count, int check)
 		while (tmp->content[lenght])
 			lenght++;
 		lenght -= count;
-		new_str = ft_calloc(sizeof (char *), (lenght + 2));
+		new_str = ft_calloc(sizeof (char *), (lenght + 2 + g_data.fdin));
 		while (++i < lenght)
 			new_str[i] = ft_strdup(tmp->content[count + i]);
-		new_str[lenght + 1] = NULL;
+		if (g_data.fdin == 1)
+			new_str[i] = ft_strdup(g_data.input_name);
+		new_str[lenght + 1 + g_data.fdin] = NULL;
 	}
 	else if (check == 0)
 	{
-		new_str = ft_calloc(sizeof (char *), (count + 2));
+		new_str = ft_calloc(sizeof (char *), (count + 2 + g_data.fdin));
 		while (++i < count)
 			new_str[i] = ft_strdup(tmp->content[i]);
-		new_str[count + 1] = NULL;
+		if (g_data.fdin == 1)
+			new_str[i] = ft_strdup(g_data.input_name);
+		new_str[count + 1 + g_data.fdin] = NULL;
 	}
 	return (free_commands(tmp->content), new_str);
 }
@@ -111,6 +115,4 @@ void	ft_exec_rdr(t_newlst **list)
 		tmp->content = change_newlst(tmp, last_rdr_check(tmp, 0, 1), 0);
 	else
 		tmp->content = change_newlst(tmp, last_rdr_check(tmp, 0, 0), 1);
-	printf("%s\n", tmp->content[0]);
-	printf("%s\n", tmp->content[1]);
 }

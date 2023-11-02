@@ -1,4 +1,4 @@
-SRCS = ./srcs/main.c \
+SRCS = ./srcs/executor/main.c \
 		./srcs/heredoc.c \
 		./srcs/redirections.c \
 		./srcs/parser/parser_process.c \

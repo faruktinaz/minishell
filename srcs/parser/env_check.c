@@ -6,7 +6,7 @@
 /*   By: segurbuz <segurbuz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 18:38:56 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/11/01 03:58:57 by segurbuz         ###   ########.fr       */
+/*   Updated: 2023/11/02 03:15:19 by segurbuz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,7 @@ void	find_env_name2(t_arg *temp, char *path, int i, int len)
 		if ((path[ft_strlen(path) - 1] == '?')
 			&& ft_strlen(path) >= 3)
 			path[ft_strlen(path) - 1] = '\0';
+		//printf("%s\n", path);
 		temp->content = env_add_dollars(temp->content, path);
 		g_data.quot = 0;
 		i = -1;

@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/28 15:28:25 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/11/01 23:41:16 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/02 07:09:56 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <stdlib.h>
 # include <signal.h>
 # include <unistd.h>
+# include <sys/ioctl.h>
 # include <errno.h>
 # include <readline/readline.h>
 # include <readline/history.h>
@@ -64,7 +65,7 @@ typedef struct s_newlst
 typedef struct s_exec
 {
 	char	**env_p;
-	char 	*path;
+	char	*path;
 	t_list	*t_exp;
 }	t_exec;
 
@@ -77,24 +78,25 @@ typedef struct s_data
 	char		**envp;
 	char		*path;
 	char		**redirection;
-	char		**t_export;
 	int			error_flag;
 	int			error_code;
 	int			quot;
 	int			fd[2];
-    int         in_fd;
-    int         out_fd;
+	int			in_fd;
+	int			out_fd;
 	int			in_rdr;
-    int         fdin;
-    int         fdout;
+	int			fdin;
+	int			fdout;
 	int			tmp;
 	int			quot_type;
 	int			err_ty;
-    int         default_in;
-    int         default_out;
-    int         exec_check;
+	int			default_in;
+	int			default_out;
+	int			exec_check;
 	int			dollars_error;
 	char		*parse_str;
+	char		**exp_p;
+	char		*input_name;
 }				t_data;
 
 t_data	g_data;
@@ -129,4 +131,18 @@ void	double_input_rdr(t_newlst *tmp, int i);
 int		ft_strcmp(char *s1, char *s2);
 void	change_output_or_input(void);
 void	splitting_to_add_list(t_arg *temp, char *str);
+
+
+// exec part
+
+void	ft_cd(t_exec *data,	char **content);
+int		is_built_in(t_exec *data, char **content);
+void	ft_pwd(t_exec *data);
+void	ft_echo(char **commands);
+void	ft_unset(t_exec *data, char **commands);
+void	ft_p_env_ex(t_exec *data);
+void	ft_p_env(t_exec *data);
+int		ft_export(t_exec *data, char **commands);
+int		ft_change_dir(t_exec *data, char *token);
+
 #endif
