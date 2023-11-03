@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
+/*   By: segurbuz <segurbuz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/30 03:56:43 by ogenc             #+#    #+#             */
-/*   Updated: 2023/11/03 01:09:13 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/03 02:48:46 by segurbuz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,10 @@ int	is_built_in(t_exec *data, char **content)
 	else if (!(ft_strcmp(content[0], "export")))
 		ft_export(data, content);
 	else if (!(ft_strcmp(content[0], "unset")))
+	{
 		ft_unset(data, content);
+		ft_unset2(content);
+	}
 	else if (!(ft_strcmp(content[0], "env")))
 		ft_p_env(data);
 	return (data->res);
@@ -82,6 +85,7 @@ int	main(int argc, char **argv, char **env)
 	(void)argc;
 	init_signals();
 	data = malloc(sizeof(t_exec));
+	g_data.exp_p = NULL;
 	data->t_exp = malloc(sizeof(t_list));
 	struct_initilaize(NULL, 1);
 	set_envp(data, env);

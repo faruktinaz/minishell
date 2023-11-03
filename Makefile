@@ -9,8 +9,10 @@ SRCS = ./srcs/exec/main.c \
 		./srcs/exec/utils.c \
 		./srcs/exec/signals.c \
 		./srcs/exec/pipes.c \
+		./srcs/exec/unset.c \
 		./srcs/exec/readline.c \
 		./srcs/redirections.c \
+		./srcs/redirections2.c \
 		./srcs/parser/parser_process.c \
 		./srcs/parser/parser_process2.c \
 		./srcs/parser/changed_list.c \
@@ -23,7 +25,7 @@ SRCS = ./srcs/exec/main.c \
 		./srcs/lexer/make_sense.c
 NAME = minishell
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -lreadline -g
+CFLAGS = -Wall -Wextra -Werror -lreadline
 RM = rm -rf
 LIBFT = ./srcs/libary/libft/libft.a
 OBJS = $(SRCS:.c=.o)

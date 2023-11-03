@@ -6,11 +6,11 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/06 18:18:58 by ogenc             #+#    #+#             */
-/*   Updated: 2023/01/02 15:07:17 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/03 03:27:00 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include"libft.h"
+#include "libft.h"
 
 int	ft_tolower(int c)
 {

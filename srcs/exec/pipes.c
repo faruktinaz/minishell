@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 08:53:09 by ogenc             #+#    #+#             */
-/*   Updated: 2023/11/03 02:12:09 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/03 03:39:55 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,6 @@ void	init_child_p(t_newlst *tmp, t_exec *data, int total_pipe, int *in)
 	else
 		ft_exec_parent(&in, total_pipe);
 }
-
 
 void	ft_exec_w_pipes(t_exec *data)
 {

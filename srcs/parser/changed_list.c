@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   changed_list.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
+/*   By: segurbuz <segurbuz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/16 21:13:10 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/11/02 12:04:02 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/02 08:26:13 by segurbuz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,11 +106,11 @@ void	change_list(t_arg *temp)
 
 	list = ft_calloc(sizeof(t_newlst), 1);
 	headlst = list;
-	while (temp != NULL) 
+	while (temp != NULL)
 	{
 		size = array_size(temp);
 		temp = add_list(&list, temp, size);
-		if (temp != NULL) 
+		if (temp != NULL)
 		{
 			temp = temp->next;
 			if (temp)

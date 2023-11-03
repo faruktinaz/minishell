@@ -6,11 +6,11 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/19 17:16:19 by ogenc             #+#    #+#             */
-/*   Updated: 2022/12/22 14:35:25 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/03 03:25:28 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include"libft.h"
+#include "libft.h"
 
 static int	ft_isset(char c, const char *set)
 {

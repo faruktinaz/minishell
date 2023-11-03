@@ -6,11 +6,11 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/27 18:38:35 by ogenc             #+#    #+#             */
-/*   Updated: 2022/12/27 18:47:55 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/03 03:26:26 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include"libft.h"
+#include "libft.h"
 
 int	ft_memcmp(const void *s1, const void *s2, size_t n)
 {

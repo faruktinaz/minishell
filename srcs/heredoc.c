@@ -3,23 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
+/*   By: segurbuz <segurbuz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/25 00:33:47 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/11/02 12:24:04 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/03 01:27:18 by segurbuz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./includes/minishell.h"
 
-void	double_input_rdr(t_newlst *tmp, int i)
+void	heredoc_input(int fd, char *end_name)
 {
 	char	*input;
-	char	*end_name;
-	int		fd;
-	
-	end_name = tmp->content[i + 1];
-	fd = open("heredoc.txt", O_CREAT | O_RDWR | O_TRUNC, 0644);
+
 	while (1)
 	{
 		g_data.in_rdr = 2;
@@ -41,6 +37,16 @@ void	double_input_rdr(t_newlst *tmp, int i)
 		dup2(g_data.default_out, 1);
 		free(input);
 	}
+}
+
+void	double_input_rdr(t_newlst *tmp, int i)
+{
+	char	*end_name;
+	int		fd;
+
+	end_name = tmp->content[i + 1];
+	fd = open("heredoc.txt", O_CREAT | O_RDWR | O_TRUNC, 0644);
+	heredoc_input(fd, end_name);
 	g_data.input_name = "heredoc.txt";
 	g_data.fdin = 1;
 	close(fd);
@@ -48,5 +54,5 @@ void	double_input_rdr(t_newlst *tmp, int i)
 	{
 		fd = open("heredoc.txt", O_RDWR | O_TRUNC, 0644);
 		close(fd);
-	}		
+	}
 }

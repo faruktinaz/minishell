@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 21:37:01 by ogenc             #+#    #+#             */
-/*   Updated: 2023/11/02 21:38:18 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/03 03:42:30 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,4 +27,17 @@ void	struct_initilaize(char **envp, int rule)
 	g_data.exec_check = 0;
 	dup2(g_data.default_in, 0);
 	dup2(g_data.default_out, 1);
+}
+
+void	change_exp_content(t_arg *expath, int type, char *commands)
+{
+	while (expath)
+	{
+		if (expath->type == type)
+		{
+			ft_strlcpy(expath->content, commands, ft_strlen(commands) + 1);
+			break ;
+		}
+		expath = expath->next;
+	}
 }

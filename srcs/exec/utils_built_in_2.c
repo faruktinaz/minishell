@@ -6,7 +6,7 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 08:46:21 by ogenc             #+#    #+#             */
-/*   Updated: 2023/11/03 01:12:57 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/03 03:42:59 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,21 @@
 
 void	ft_p_env_ex(t_exec *data)
 {
-	int	i;
+	int		i;
+	t_arg	*tmp;
 
 	i = 0;
+	tmp = g_data.exp_p;
 	while (data->env_p[i])
 	{
 		printf("declare -x %s\n", data->env_p[i]);
 		i++;
+	}
+	while (tmp != NULL)
+	{
+		if (find_env_dir(data->env_p, tmp->content) == -1)
+			printf("declare -x %s\n", tmp->content);
+		tmp = tmp->next;
 	}
 }
 
@@ -80,7 +88,7 @@ char	*ft_f_command(char *command)
 	while ((command[i] >= 'A' && command[i] <= 'Z') \
 			|| (command[i] >= 'a' && command[i] <= 'z'))
 		i++;
-	if (command[i] == '=' && command[0] != '=')
+	if (command[0] != '=')
 	{
 		n_str = malloc(sizeof(char) * i + 1);
 		ft_strlcpy(n_str, command, i + 1);
@@ -88,4 +96,23 @@ char	*ft_f_command(char *command)
 	else
 		return (NULL);
 	return (n_str);
+}
+
+int	find_env_dir2(t_arg *expath, char *find)
+{
+	int	j;
+
+	j = 0;
+	if (find)
+	{
+		while (expath != NULL)
+		{
+			if (expath->content && \
+				ft_strncmp(expath->content, find, ft_strlen(find)) == 0)
+				return (expath->type);
+			else
+				expath = expath->next;
+		}
+	}
+	return (-1);
 }

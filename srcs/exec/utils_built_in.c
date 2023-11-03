@@ -6,21 +6,39 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 08:26:44 by ogenc             #+#    #+#             */
-/*   Updated: 2023/11/03 00:13:42 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/03 03:41:06 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
 
-void	ft_set_export(t_exec *data, char *export)
+void	ft_set_export(t_exec *data, char *export, int j)
 {
-	int	i;
+	int		i;
+	char	*export_add;
 
 	i = 0;
-	while (data->env_p[i])
-		i++;
-	data->env_p[i] = malloc(sizeof(char) * ft_strlen(export) + 1);
-	ft_strlcpy(data->env_p[i], export, ft_strlen(export) + 1);
+	export_add = ft_strdup("\"\"");
+	if (export[j] == '=')
+	{
+		while (data->env_p[i])
+			i++;
+		data->env_p[i] = malloc(sizeof(char) * ft_strlen(export) + 1);
+		ft_strlcpy(data->env_p[i], export, ft_strlen(export) + 1);
+		if (export[2] == 0)
+			ms_lstadd_back(&g_data.exp_p, \
+				ms_lstnew(ms_lstsize(g_data.exp_p), \
+					ft_strjoin(export, export_add)));
+		else
+			ms_lstadd_back(&g_data.exp_p, \
+				ms_lstnew(ms_lstsize(g_data.exp_p), ft_strdup(export)));
+	}
+	else
+	{
+		ms_lstadd_back(&g_data.exp_p, \
+		ms_lstnew(ms_lstsize(g_data.exp_p), ft_strdup(export)));
+	}
+	free(export_add);
 }
 
 int	ft_change_dir(t_exec *data, char *token)

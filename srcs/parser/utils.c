@@ -6,7 +6,7 @@
 /*   By: segurbuz <segurbuz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/30 01:04:15 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/11/01 02:59:53 by segurbuz         ###   ########.fr       */
+/*   Updated: 2023/11/02 07:38:36 by segurbuz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ int	env_control(char *str, int i)
 	while (str[i] != '\0')
 	{
 		is_check(str[i]);
-		if (g_data.quot_type != '\'' && str[i] == '$')
+		if (g_data.quot_type != '\'' && (str[i] == '$' || str[i] == '~'))
 			return (i);
 		i++;
 	}

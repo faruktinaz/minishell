@@ -6,11 +6,11 @@
 /*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/12 18:04:06 by ogenc             #+#    #+#             */
-/*   Updated: 2022/12/27 19:19:53 by ogenc            ###   ########.fr       */
+/*   Updated: 2023/11/03 03:26:51 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include"libft.h"
+#include "libft.h"
 
 char	*ft_strnstr(const char *str, const char *needle, size_t len)
 {

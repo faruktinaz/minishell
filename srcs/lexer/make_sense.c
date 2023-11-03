@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   make_sense.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: segurbuz <segurbuz@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ogenc <ogenc@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 23:25:10 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/10/17 23:48:50 by segurbuz         ###   ########.fr       */
+/*   Updated: 2023/11/03 03:43:10 by ogenc            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ void	make_sense(t_arg **lst)
 
 	list = *lst;
 	while (list != NULL)
-	{	
+	{
 		if (*list->content == '|' || *list->content == '<'
 			|| *list->content == '>')
 			initialize_lexer(list);

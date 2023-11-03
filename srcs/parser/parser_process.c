@@ -6,7 +6,7 @@
 /*   By: segurbuz <segurbuz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/28 15:28:25 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/11/02 05:02:38 by segurbuz         ###   ########.fr       */
+/*   Updated: 2023/11/02 13:41:14 by segurbuz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,18 +59,6 @@ void	type_counter(t_arg	**lst)
 		else if (list->type == PIPE)
 			g_data.counter->pipe++;
 		list = list->next;
-	}
-}
-
-void	test(t_arg **temp)
-{
-	t_arg	*tmp;
-
-	tmp = *temp;
-	while (tmp != NULL)
-	{
-		printf("list: %s;\n",tmp->content);
-		tmp = tmp->next;
 	}
 }
 

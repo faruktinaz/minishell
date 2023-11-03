@@ -6,7 +6,7 @@
 /*   By: segurbuz <segurbuz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:50:02 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/11/02 03:38:35 by segurbuz         ###   ########.fr       */
+/*   Updated: 2023/11/03 02:22:24 by segurbuz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,24 @@ int	pipe_check(t_arg *temp)
 		return (parse_error(1, "syntax error near unexpected token '|'"), 1);
 	else if (ft_strcmp(temp->next->content, "|") == 0)
 		return (parse_error(1, "syntax error near unexpected token '|'"), 1);
+	return (0);
+}
+
+int	rdr_check2(t_arg *temp)
+{
+	if (ft_strcmp(temp->content, "<><") == 0)
+		return (parse_error(258, "syntax error near unexpected token '<'"), 1);
+	else if (ft_strcmp(temp->content, "<>>") == 0)
+		return (parse_error(258, "syntax error near unexpected token '>'"), 1);
+	else if (ft_strcmp(temp->content, "><<") == 0)
+		return (parse_error(258, "syntax error near unexpected token '<'"), 1);
+	else if (ft_strcmp(temp->content, "><>") == 0)
+		return (parse_error(258, "syntax error near unexpected token '>'"), 1);
+	else if (temp->next == NULL)
+		return (parse_error(258 \
+			, "syntax error near unexpected token 'newline'"), 1);
+	if (ft_strcmp(temp->next->content, "|") == 0)
+		return (parse_error(258, "syntax error near unexpected token '|'"), 1);
 	return (0);
 }
 
@@ -35,19 +53,11 @@ int	rdr_check(t_arg *temp)
 		return (parse_error(258, "syntax error near unexpected token '<'"), 1);
 	else if (ft_strcmp(temp->content, "<>") == 0)
 		return (parse_error(258, "syntax error near unexpected token '>'"), 1);
-	else if (ft_strcmp(temp->content, "<><") == 0)
-		return (parse_error(258, "syntax error near unexpected token '<'"), 1);
-	else if (ft_strcmp(temp->content, "<>>") == 0)
-		return (parse_error(258, "syntax error near unexpected token '>'"), 1);
-	else if (ft_strcmp(temp->content, "><<") == 0)
-		return (parse_error(258, "syntax error near unexpected token '<'"), 1);
-	else if (ft_strcmp(temp->content, "><>") == 0)
-		return (parse_error(258, "syntax error near unexpected token '>'"), 1);
-	else if (temp->next == NULL)
-		return (parse_error(258 \
-			, "syntax error near unexpected token 'newline'"), 1);
-	if (ft_strcmp(temp->next->content, "|") == 0)
-		return (parse_error(258, "syntax error near unexpected token '|'"), 1);	
+	else
+	{
+		if (rdr_check2(temp) == 1)
+			return (1);
+	}
 	return (0);
 }
 

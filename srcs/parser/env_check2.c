@@ -6,7 +6,7 @@
 /*   By: segurbuz <segurbuz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/01 01:04:12 by segurbuz          #+#    #+#             */
-/*   Updated: 2023/11/01 05:07:59 by segurbuz         ###   ########.fr       */
+/*   Updated: 2023/11/03 01:17:18 by segurbuz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ bool	env_check(char const *str, char c, int rule)
 	else
 	{
 		while (str[++i] != '\0')
-			if (str[i] == '$')
+			if (str[i] == '$' || str[i] == '~')
 				return (true);
 		return (false);
 	}
@@ -70,4 +70,20 @@ char	*env_find(char *path)
 		return (ft_strdup("\0"));
 	else
 		return (ft_strdup(g_data.envp[i] + env_size(path)));
+}
+
+char	*env_add_dollars3(char *str, char *tmp_path, char *path, int i)
+{
+	while (str[++i] != '\0')
+	{
+		if (g_data.quot_type != '\'' && str[i] == '$')
+		{
+			tmp_path = env_find(path);
+			g_data.error_code = 0;
+			break ;
+		}
+		else if (str[i] == '~')
+			tmp_path = ft_strdup(getenv("HOME"));
+	}
+	return (tmp_path);
 }
